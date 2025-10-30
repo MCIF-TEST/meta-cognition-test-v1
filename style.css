@@ -1,1 +1,159 @@
+/*
+  style.css | Meta-Cognition Test (MCIF 7.1)
+  Lucid Flow UI — Cognitive Design Language
+  Developed by Hayden Andrew Carr | Meta-Cognitive Intelligence Project
+*/
+
+/* ==== CORE RESET ==== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  transition: all 0.3s ease;
+}
+
+html, body {
+  height: 100%;
+  background: radial-gradient(circle at center, #0f111a 0%, #08090f 100%);
+  color: #e4e6eb;
+  overflow-x: hidden;
+}
+
+/* ==== LAYOUT ==== */
+#app {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 3rem;
+  text-align: center;
+}
+
+#test-container {
+  width: 100%;
+  max-width: 800px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 2rem 3rem;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+}
+
+/* ==== TYPOGRAPHY ==== */
+h1, h2, h3 {
+  color: #ffffff;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+p {
+  color: #cfd1d5;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+/* ==== QUESTION BLOCK ==== */
+.question-list {
+  margin-top: 1.5rem;
+}
+
+.question-block {
+  margin-bottom: 1.8rem;
+  text-align: left;
+}
+
+.question-block label {
+  display: block;
+  font-weight: 500;
+  color: #9fa5b3;
+  margin-bottom: 0.5rem;
+}
+
+.question-block textarea {
+  width: 100%;
+  min-height: 90px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e6e8ec;
+  padding: 0.75rem;
+  resize: vertical;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.question-block textarea:focus {
+  border-color: #73a9ff;
+  box-shadow: 0 0 8px rgba(115, 169, 255, 0.5);
+}
+
+/* ==== BUTTONS ==== */
+button {
+  display: inline-block;
+  background: linear-gradient(90deg, #3a9df8, #8f68ff);
+  color: white;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1.5rem;
+}
+
+button:hover {
+  transform: scale(1.04);
+  background: linear-gradient(90deg, #68b1ff, #a37aff);
+}
+
+/* ==== RESULTS PANEL ==== */
+.feedback {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  font-style: italic;
+  color: #b8bdd3;
+}
+
+/* ==== COLOR GRADIENTS PER TIER ==== */
+body[data-tier="Novice"] #test-container { border-top: 3px solid #6f86d6; }
+body[data-tier="Intermediate"] #test-container { border-top: 3px solid #73a9ff; }
+body[data-tier="Advanced"] #test-container { border-top: 3px solid #9b6cff; }
+body[data-tier="Expert"] #test-container { border-top: 3px solid #c67aff; }
+body[data-tier="Savant"] #test-container { border-top: 3px solid #ff9bff; }
+
+/* ==== ANIMATIONS ==== */
+@keyframes lucidFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.lucid-flow {
+  background: linear-gradient(270deg, #3a9df8, #8f68ff, #6f86d6);
+  background-size: 600% 600%;
+  animation: lucidFlow 8s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ==== RESPONSIVE ==== */
+@media (max-width: 768px) {
+  #test-container {
+    padding: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+  }
+
+  button {
+    width: 100%;
+  }
+}
 /* Placeholder for style */ 
+
