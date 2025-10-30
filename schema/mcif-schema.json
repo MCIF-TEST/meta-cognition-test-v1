@@ -1,40 +1,32 @@
 {
   "meta": {
-    "title": "MCIF 7.1 Master Schema",
-    "version": "7.1.0",
+    "title": "MCIF 7.1 Master Schema (Full)",
+    "version": "7.1.0-fully-expanded",
     "schemaType": "MCIF_CORE",
     "author": "Hayden Andrew Carr | Meta-Cognitive Intelligence Project",
     "createdAt": "2025-10-30T12:00:00Z",
     "updatedAt": "2025-10-30T12:00:00Z",
-    "description": "Master schema for MCIF 7.1 — complete structural embodiment of the white page. Normalized internal scale 0..1. Use this file as the single source of truth for phases, metrics, prompts, scoring, archetypes, and governance.",
+    "description": "Full, expanded, production-grade MCIF 7.1 schema file. Contains phases, metrics, prompts, scoring, branching, archetypes, ledger and adapters. Internal normalized scale: 0..1. Human report scale: 700 points.",
     "changelog": [
       {
-        "version": "7.1.0",
+        "version": "7.1.0-fully-expanded",
         "date": "2025-10-30T12:00:00Z",
         "author": "Hayden Andrew Carr",
-        "notes": "Initial full schema embodying MCIF 7.1 white page."
+        "notes": "Full schema expansion from MCIF 7.1 white page. For engine consumption and audit."
       }
     ]
   },
 
   "config": {
-    "internalScale": {
-      "min": 0,
-      "max": 1
-    },
-    "reportScale": {
-      "totalPoints": 700,
-      "pointsPerMetricConvention": "legacy-human-report"
-    },
+    "internalScale": { "min": 0, "max": 1 },
+    "reportScale": { "totalPoints": 700 },
     "normalizationMethod": "minmax",
-    "questionThresholds": {
-      "low": 0.35,
-      "high": 0.75
-    },
+    "questionThresholds": { "low": 0.35, "high": 0.75 },
     "sessionDefaults": {
       "maxDurationMinutes": 90,
       "autoSaveIntervalSec": 30,
-      "defaultTierProfile": "Explorer"
+      "defaultTierProfile": "Explorer",
+      "allowAnonymousSession": true
     },
     "privacyDefaults": {
       "anonymizeByDefault": true,
@@ -43,12 +35,14 @@
     },
     "math": {
       "compositeFormula": "weighted_sum_normalized",
-      "outlierVarianceCap": 0.25
+      "compositeNormalizationTarget": 1.0,
+      "variancePenaltyCap": 0.25
     },
     "branchingEngine": {
       "engineType": "jsonlogic",
-      "maxDepth": 6,
-      "defaultBehavior": "continue"
+      "maxDepth": 8,
+      "defaultBehavior": "continue",
+      "safeMode": true
     }
   },
 
@@ -57,25 +51,28 @@
       {
         "id": "consent_v1",
         "title": "MCIF 7.1 Participant Consent",
-        "text": "By participating you agree to the ephemeral analysis of your session. Session vectors are anonymized by default and may be exported only with your explicit opt-in. You may delete your stored data at any time.",
+        "text": "You are about to take a reflective cognitive session. Responses are analyzed to produce adaptive feedback. Data is anonymized by default; you may opt-in for research export. You may delete your session at any time. Analysis is reflective, not diagnostic.",
         "requireSignature": false
       }
     ],
     "dataRetentionPolicy": {
       "defaultDays": 30,
       "exportable": true,
-      "deletionProcedure": "User action via UI or email request to admin; ledger entries of deletion are kept as non-identifying hashes."
+      "deletionProcedure": "User can delete data via Settings -> Export & Delete. Ledger will keep non-identifying hash of deletion event."
     },
     "auditPolicy": {
-      "allowPractitionerView": true,
-      "encryptionAtRest": true,
       "explainabilityRequired": true,
-      "ethicsCouncilContact": null
+      "whoCanView": ["user", "practitioner_with_consent", "admin_ethics"],
+      "encryptionAtRest": true
+    },
+    "ethicsCouncil": {
+      "contact": null,
+      "notes": "Add ethics council contact list before clinical deployment."
     },
     "explainabilityRules": [
-      "All composite computations must include metric-level breakdowns.",
-      "Any adaptive change to weights must be logged in evolution.changelog.",
-      "Archetype derivation logic must be included in the session export."
+      "Every composite includes metric-level evidence items.",
+      "Every adaptive weight change must be logged with rationale.",
+      "Archetype mapping must attach the rule expression and contributing metric vector."
     ]
   },
 
@@ -84,11 +81,11 @@
       "id": "phase_1_perceptual_awareness",
       "index": 1,
       "name": "Perceptual Awareness",
-      "summary": "Elicit sensory detail, context framing, and pattern detection.",
+      "summary": "Elicit rich sensory detail and early contextual framing.",
       "goals": [
-        "Increase sensory discrimination",
-        "Link sensory features to emergent concepts",
-        "Detect initial noise and bias"
+        "Capture sensory-specific description",
+        "Establish immediate contextual links",
+        "Identify initial bias or noise"
       ],
       "durationEstimateMinutes": 15,
       "primaryMetrics": [
@@ -103,30 +100,34 @@
       "prompts": [
         "p1_q1_describe_object_first_time",
         "p1_q2_list_sensory_features",
-        "p1_q3_detect_noise_sources"
+        "p1_q3_detect_noise_sources",
+        "p1_q1_remedial_surface",
+        "p1_q1_advance_pattern"
       ],
       "entryRules": null,
       "exitRules": {
         "minMetricNormalized": 0.05,
-        "maxAttempts": 3
+        "maxAttempts": 3,
+        "minPromptsAnswered": 2
       },
       "uiHints": {
         "phaseColor": "#6AAFE6",
         "focusMode": true,
+        "layout": "stacked_text_inputs",
         "dyslexiaFriendly": true
       },
-      "phaseNotes": "Foundational: detect attention vs noise; fast taps for sensory detail."
+      "phaseNotes": "Encourage close observation and short, precise descriptions. Use reminders to 'notice specific senses'."
     },
 
     {
       "id": "phase_2_cognitive_mechanics",
       "index": 2,
       "name": "Cognitive Mechanics",
-      "summary": "Assess logical flow, systems reasoning, and pragmatic creativity.",
+      "summary": "Probe logical structure, systems thinking, and pragmatic creativity.",
       "goals": [
-        "Measure stepwise logical construction",
-        "Test systemic problem decomposition",
-        "Assess practical creativity in solutions"
+        "Measure sequential reasoning",
+        "Test systems-level thinking",
+        "Probe practicable creativity"
       ],
       "durationEstimateMinutes": 20,
       "primaryMetrics": [
@@ -141,31 +142,34 @@
       "prompts": [
         "p2_q1_fix_team_deadlines",
         "p2_q2_map_process_flow",
-        "p2_q3_evaluate_tradeoffs"
+        "p2_q3_evaluate_tradeoffs",
+        "p2_q1_remedial_structuring",
+        "p2_q1_advanced_optimization"
       ],
       "entryRules": {
         "requirePhaseCompleted": "phase_1_perceptual_awareness"
       },
       "exitRules": {
-        "minMetricNormalized": 0.10
+        "minMetricNormalized": 0.10,
+        "minPromptsAnswered": 2
       },
       "uiHints": {
         "phaseColor": "#8ED28A",
         "diagramMode": true,
-        "focusMode": false
+        "layout": "two_column"
       },
-      "phaseNotes": "Emphasize transparent chain-of-reasoning; step labeling encouraged."
+      "phaseNotes": "Require explicit step counts for logic questions. Encourage naming of stakeholders when systems thinking is tested."
     },
 
     {
       "id": "phase_3_emotive_intelligence",
       "index": 3,
       "name": "Emotive Intelligence",
-      "summary": "Probe emotional literacy, causality, and self-compassion.",
+      "summary": "Probe emotional literacy, causal chains, and self-compassion.",
       "goals": [
-        "Label emotions and trace causal antecedents",
-        "Assess psychological self-awareness",
-        "Measure empathy within problem framing"
+        "Label emotional states precisely",
+        "Map causal chains",
+        "Formulate compassionate remediation"
       ],
       "durationEstimateMinutes": 15,
       "primaryMetrics": [
@@ -186,24 +190,26 @@
         "requirePhaseCompleted": "phase_2_cognitive_mechanics"
       },
       "exitRules": {
-        "minMetricNormalized": 0.10
+        "minMetricNormalized": 0.10,
+        "minPromptsAnswered": 2
       },
       "uiHints": {
         "phaseColor": "#F2B46F",
         "empathyMode": true,
-        "voiceModeSuggested": true
+        "voiceModeSuggested": true,
+        "layout": "single_column"
       },
-      "phaseNotes": "Encourage first-person emotional descriptions and causal links."
+      "phaseNotes": "Offer gentle language prompts and an optional voice input method for participants who prefer speaking."
     },
 
     {
       "id": "phase_4_meta_cognitive_insight",
       "index": 4,
       "name": "Meta-Cognitive Insight",
-      "summary": "Measure awareness of patterns, process diagnosis and remedy clarity.",
+      "summary": "Elicit awareness of one’s own cognitive processes and remedies.",
       "goals": [
         "Identify cognitive blocks",
-        "Assess process transparency",
+        "Diagnose process breakdowns",
         "Propose actionable remedies"
       ],
       "durationEstimateMinutes": 15,
@@ -225,25 +231,27 @@
         "requirePhaseCompleted": "phase_3_emotive_intelligence"
       },
       "exitRules": {
-        "minMetricNormalized": 0.15
+        "minMetricNormalized": 0.15,
+        "minPromptsAnswered": 2
       },
       "uiHints": {
         "phaseColor": "#C29BEB",
         "reflectionMode": true,
-        "ledgerVisibility": true
+        "ledgerVisibility": true,
+        "layout": "expanded_text"
       },
-      "phaseNotes": "Highest level introspective prompts; require explicit reasoning steps."
+      "phaseNotes": "Prompts should request numbered steps and expected timelines. Ledger entries must be created for diagnostic steps."
     },
 
     {
       "id": "phase_5_creative_intelligence",
       "index": 5,
       "name": "Creative Intelligence",
-      "summary": "Assess originality, cross-domain integration and coherence.",
+      "summary": "Test novelty, coherence, and cross-domain integration.",
       "goals": [
-        "Generate novel ideas",
-        "Integrate cross-domain concepts",
-        "Assess coherence and viability"
+        "Generate original concepts",
+        "Map cross-domain links",
+        "Test coherence and robustness"
       ],
       "durationEstimateMinutes": 20,
       "primaryMetrics": [
@@ -264,25 +272,26 @@
         "requirePhaseCompleted": "phase_4_meta_cognitive_insight"
       },
       "exitRules": {
-        "minMetricNormalized": 0.10
+        "minMetricNormalized": 0.10,
+        "minPromptsAnswered": 2
       },
       "uiHints": {
         "phaseColor": "#F89DAA",
         "creativeMode": true,
         "canvasMode": true
       },
-      "phaseNotes": "Encourage lateral thinking and explicit mapping to existing paradigms."
+      "phaseNotes": "Provide optional visual canvas and bullet-point answer mode for creative mapping."
     },
 
     {
       "id": "phase_6_philosophical_depth",
       "index": 6,
       "name": "Philosophical Depth & Applied Integration",
-      "summary": "Elect ethical reasoning, abstraction, and applied strategies.",
+      "summary": "Close session with abstraction, ethics, and application.",
       "goals": [
-        "Consider long-term philosophical implications",
-        "Synthesize ethical and practical insights",
-        "Propose adaptative strategies"
+        "Consider long-range implications",
+        "Synthesize ethics with application",
+        "Commit to short term application steps"
       ],
       "durationEstimateMinutes": 15,
       "primaryMetrics": [
@@ -303,14 +312,16 @@
         "requirePhaseCompleted": "phase_5_creative_intelligence"
       },
       "exitRules": {
-        "minMetricNormalized": 0.10
+        "minMetricNormalized": 0.10,
+        "minPromptsAnswered": 2
       },
       "uiHints": {
         "phaseColor": "#5E6CFA",
         "depthMode": true,
-        "pauseForReflection": true
+        "pauseForReflection": true,
+        "layout": "final_summary"
       },
-      "phaseNotes": "Close session with broad perspective and application-focused prompts."
+      "phaseNotes": "End with an action step to encourage living the insight."
     }
   ],
 
@@ -318,34 +329,30 @@
     {
       "id": "metric_sensory_clarity",
       "name": "Sensory Clarity",
-      "description": "Degree to which sensory detail is vivid and discriminative.",
+      "description": "Precision and richness of multisensory detail.",
       "unit": "normalized",
       "maxScore": 0.5,
       "defaultWeight": 0.15,
-      "phaseWeights": {
-        "phase_1_perceptual_awareness": 1
-      },
+      "phaseWeights": { "phase_1_perceptual_awareness": 1.0 },
       "scoringHints": {
         "keywords": ["texture", "color", "sound", "temperature", "motion"],
-        "keywordWeight": 0.5,
-        "lengthWeight": 0.5,
-        "exampleHigh": "Describes multiple senses with precise nouns and modifiers."
+        "keywordWeight": 0.6,
+        "lengthWeight": 0.4,
+        "structureHints": ["list senses", "use concrete adjectives"]
       },
-      "calibrationFixtures": [],
+      "calibrationFixtures": ["cal_001", "cal_002"],
       "privacyFlag": false
     },
     {
       "id": "metric_contextual_recognition",
       "name": "Contextual Recognition",
-      "description": "Ability to place perception inside a broader conceptual or situational frame.",
+      "description": "Ability to place perception in useful context.",
       "unit": "normalized",
       "maxScore": 0.25,
       "defaultWeight": 0.10,
-      "phaseWeights": {
-        "phase_1_perceptual_awareness": 1
-      },
+      "phaseWeights": { "phase_1_perceptual_awareness": 1.0 },
       "scoringHints": {
-        "keywords": ["context", "background", "function", "use"],
+        "keywords": ["function", "use", "origin", "background"],
         "keywordWeight": 0.5,
         "lengthWeight": 0.5
       },
@@ -355,26 +362,23 @@
     {
       "id": "metric_pattern_detection",
       "name": "Pattern Detection",
-      "description": "Recognition of recurrent features and initial hypothesis about patterns.",
+      "description": "Noticing and hypothesizing patterns or regularities.",
       "unit": "normalized",
       "maxScore": 0.25,
       "defaultWeight": 0.10,
-      "phaseWeights": {
-        "phase_1_perceptual_awareness": 1
-      },
+      "phaseWeights": { "phase_1_perceptual_awareness": 1.0 },
       "scoringHints": {
-        "keywords": ["repeat", "pattern", "cycle", "trend"],
+        "keywords": ["trend", "repeat", "cycle", "pattern"],
         "keywordWeight": 0.6,
         "lengthWeight": 0.4
       },
       "calibrationFixtures": [],
       "privacyFlag": false
     },
-
     {
       "id": "metric_focus_stability",
       "name": "Focus Stability",
-      "description": "Sustained attention and minimal drift during task.",
+      "description": "Sustained attention with minimal drift.",
       "unit": "normalized",
       "maxScore": 0.25,
       "defaultWeight": 0.05,
@@ -383,10 +387,10 @@
         "phase_2_cognitive_mechanics": 0.4
       },
       "scoringHints": {
-        "keywords": ["steady", "focused", "concentration"],
-        "keywordWeight": 0.5,
-        "lengthWeight": 0.5,
-        "timeSensitivity": true
+        "timeSensitive": true,
+        "keywords": ["steady", "concentration", "sustained"],
+        "keywordWeight": 0.4,
+        "lengthWeight": 0.6
       },
       "calibrationFixtures": [],
       "privacyFlag": false
@@ -404,7 +408,7 @@
         "phase_4_meta_cognitive_insight": 0.5
       },
       "scoringHints": {
-        "keywords": ["manageable", "too much", "overwhelm", "balanced"],
+        "indicators": ["too much detail", "short incomplete answers", "clear pacing"],
         "keywordWeight": 0.4,
         "lengthWeight": 0.6
       },
@@ -415,17 +419,16 @@
     {
       "id": "metric_logic",
       "name": "Logic",
-      "description": "Stepwise reasoning clarity and validity.",
+      "description": "Clarity and validity of stepwise reasoning.",
       "unit": "normalized",
       "maxScore": 0.4,
       "defaultWeight": 0.15,
-      "phaseWeights": {
-        "phase_2_cognitive_mechanics": 1
-      },
+      "phaseWeights": { "phase_2_cognitive_mechanics": 1.0 },
       "scoringHints": {
-        "keywords": ["therefore", "because", "first", "next", "result"],
-        "keywordWeight": 0.5,
-        "structureWeight": 0.5
+        "connectors": ["therefore", "because", "since", "thus"],
+        "structureHints": ["number steps", "use transitional phrases"],
+        "keywordWeight": 0.4,
+        "structureWeight": 0.6
       },
       "calibrationFixtures": [],
       "privacyFlag": false
@@ -434,15 +437,13 @@
     {
       "id": "metric_systems_thinking",
       "name": "Systems Thinking",
-      "description": "Ability to reason about interconnected parts and consequences.",
+      "description": "Understanding interactions, feedback loops, and stakeholders.",
       "unit": "normalized",
       "maxScore": 0.3,
       "defaultWeight": 0.12,
-      "phaseWeights": {
-        "phase_2_cognitive_mechanics": 1
-      },
+      "phaseWeights": { "phase_2_cognitive_mechanics": 1.0 },
       "scoringHints": {
-        "keywords": ["system", "feedback", "loop", "stakeholder"],
+        "keywords": ["loop", "feedback", "stakeholder", "bottleneck"],
         "keywordWeight": 0.6,
         "lengthWeight": 0.4
       },
@@ -453,17 +454,15 @@
     {
       "id": "metric_practical_creativity",
       "name": "Practical Creativity",
-      "description": "Novel practical solutions that could be implemented.",
+      "description": "Novel yet implementable ideas.",
       "unit": "normalized",
       "maxScore": 0.3,
       "defaultWeight": 0.10,
-      "phaseWeights": {
-        "phase_2_cognitive_mechanics": 1
-      },
+      "phaseWeights": { "phase_2_cognitive_mechanics": 1.0 },
       "scoringHints": {
-        "keywords": ["novel", "practical", "implement", "feasible"],
+        "keywords": ["novel", "feasible", "implement", "prototype"],
         "keywordWeight": 0.6,
-        "lengthWeight": 0.4
+        "feasibilityWeight": 0.4
       },
       "calibrationFixtures": [],
       "privacyFlag": false
@@ -472,15 +471,13 @@
     {
       "id": "metric_emotional_identification",
       "name": "Emotional Identification",
-      "description": "Precision in naming and describing inner affective states.",
+      "description": "Precision in naming affective states.",
       "unit": "normalized",
       "maxScore": 0.3,
       "defaultWeight": 0.12,
-      "phaseWeights": {
-        "phase_3_emotive_intelligence": 1
-      },
+      "phaseWeights": { "phase_3_emotive_intelligence": 1.0 },
       "scoringHints": {
-        "keywords": ["anxious", "calm", "sad", "relieved", "excited"],
+        "keywords": ["anxious", "calm", "guilty", "relieved", "excited"],
         "keywordWeight": 0.6,
         "lengthWeight": 0.4
       },
@@ -491,18 +488,18 @@
     {
       "id": "metric_causal_insight",
       "name": "Causal Insight",
-      "description": "Ability to link events and infer cause-effect relationships.",
+      "description": "Linking events in cause-effect chains.",
       "unit": "normalized",
       "maxScore": 0.4,
       "defaultWeight": 0.14,
       "phaseWeights": {
-        "phase_3_emotive_intelligence": 1,
+        "phase_3_emotive_intelligence": 1.0,
         "phase_4_meta_cognitive_insight": 0.2
       },
       "scoringHints": {
-        "keywords": ["because", "led to", "caused", "resulted"],
-        "keywordWeight": 0.5,
-        "depthWeight": 0.5
+        "keywords": ["because", "therefore", "led to", "consequently"],
+        "depthWeight": 0.5,
+        "structureWeight": 0.5
       },
       "calibrationFixtures": [],
       "privacyFlag": false
@@ -511,15 +508,13 @@
     {
       "id": "metric_self_compassion",
       "name": "Self-Compassion",
-      "description": "Degree of nonjudgmental, supportive stance toward self-observed failures.",
+      "description": "A non-judgmental stance and practical kindness toward self.",
       "unit": "normalized",
       "maxScore": 0.3,
       "defaultWeight": 0.10,
-      "phaseWeights": {
-        "phase_3_emotive_intelligence": 1
-      },
+      "phaseWeights": { "phase_3_emotive_intelligence": 1.0 },
       "scoringHints": {
-        "keywords": ["forgive", "understand", "kindness", "gentle"],
+        "keywords": ["forgive", "gentle", "understand", "accept"],
         "keywordWeight": 0.5,
         "lengthWeight": 0.5
       },
@@ -530,15 +525,13 @@
     {
       "id": "metric_meta_awareness",
       "name": "Meta-Awareness",
-      "description": "Recognition of one's own thought processes and their mechanics.",
+      "description": "Recognition of one's cognitive mechanics and habitual patterns.",
       "unit": "normalized",
       "maxScore": 0.4,
       "defaultWeight": 0.15,
-      "phaseWeights": {
-        "phase_4_meta_cognitive_insight": 1
-      },
+      "phaseWeights": { "phase_4_meta_cognitive_insight": 1.0 },
       "scoringHints": {
-        "keywords": ["notice", "pattern", "habit", "trigger", "reflection"],
+        "keywords": ["notice", "pattern", "habit", "trigger"],
         "keywordWeight": 0.6,
         "depthWeight": 0.4
       },
@@ -549,15 +542,13 @@
     {
       "id": "metric_process_diagnosis",
       "name": "Process Diagnosis",
-      "description": "Clarity and accuracy describing the steps and breakdowns in one's process.",
+      "description": "Accuracy and clarity in mapping one's internal procedure and bottlenecks.",
       "unit": "normalized",
       "maxScore": 0.4,
       "defaultWeight": 0.10,
-      "phaseWeights": {
-        "phase_4_meta_cognitive_insight": 1
-      },
+      "phaseWeights": { "phase_4_meta_cognitive_insight": 1.0 },
       "scoringHints": {
-        "keywords": ["step", "sequence", "bottleneck", "cause"],
+        "keywords": ["step", "sequence", "bottleneck", "delay"],
         "keywordWeight": 0.5,
         "structureWeight": 0.5
       },
@@ -568,15 +559,13 @@
     {
       "id": "metric_remedy_clarity",
       "name": "Remedy Clarity",
-      "description": "How concrete and actionable proposed remedies are.",
+      "description": "How concrete and measurable proposed remedies are.",
       "unit": "normalized",
       "maxScore": 0.2,
       "defaultWeight": 0.05,
-      "phaseWeights": {
-        "phase_4_meta_cognitive_insight": 1
-      },
+      "phaseWeights": { "phase_4_meta_cognitive_insight": 1.0 },
       "scoringHints": {
-        "keywords": ["action", "practice", "plan", "steps", "timeline"],
+        "keywords": ["action", "timeline", "practice", "checklist"],
         "keywordWeight": 0.6,
         "feasibilityWeight": 0.4
       },
@@ -587,15 +576,13 @@
     {
       "id": "metric_novelty",
       "name": "Novelty",
-      "description": "Originality and divergence from conventional answers.",
+      "description": "Degree of originality or divergence from typical responses.",
       "unit": "normalized",
       "maxScore": 0.4,
       "defaultWeight": 0.15,
-      "phaseWeights": {
-        "phase_5_creative_intelligence": 1
-      },
+      "phaseWeights": { "phase_5_creative_intelligence": 1.0 },
       "scoringHints": {
-        "keywords": ["new", "novel", "unique", "uncommon"],
+        "keywords": ["novel", "innovative", "unique", "unconventional"],
         "keywordWeight": 0.6,
         "riskWeight": 0.4
       },
@@ -606,15 +593,13 @@
     {
       "id": "metric_coherence",
       "name": "Coherence",
-      "description": "Internal consistency and narrative clarity of creative output.",
+      "description": "Narrative and internal consistency of creative output.",
       "unit": "normalized",
       "maxScore": 0.3,
       "defaultWeight": 0.10,
-      "phaseWeights": {
-        "phase_5_creative_intelligence": 1
-      },
+      "phaseWeights": { "phase_5_creative_intelligence": 1.0 },
       "scoringHints": {
-        "keywords": ["cohere", "consistent", "thread", "logic"],
+        "keywords": ["thread", "consistent", "flow", "connects"],
         "keywordWeight": 0.6,
         "structureWeight": 0.4
       },
@@ -625,15 +610,13 @@
     {
       "id": "metric_integration",
       "name": "Integration",
-      "description": "Ability to combine domains and produce an interconnected solution.",
+      "description": "Ability to combine domains into a coherent, useable whole.",
       "unit": "normalized",
       "maxScore": 0.3,
       "defaultWeight": 0.10,
-      "phaseWeights": {
-        "phase_5_creative_intelligence": 1
-      },
+      "phaseWeights": { "phase_5_creative_intelligence": 1.0 },
       "scoringHints": {
-        "keywords": ["bridge", "synthesis", "combine", "cross-domain"],
+        "keywords": ["bridge", "combine", "synthesis", "link"],
         "keywordWeight": 0.6,
         "alignmentWeight": 0.4
       },
@@ -644,15 +627,13 @@
     {
       "id": "metric_depth",
       "name": "Depth",
-      "description": "Philosophical abstraction, nuance, and sustained argument.",
+      "description": "Philosophical or conceptual nuance and sustained argument.",
       "unit": "normalized",
       "maxScore": 0.4,
       "defaultWeight": 0.15,
-      "phaseWeights": {
-        "phase_6_philosophical_depth": 1
-      },
+      "phaseWeights": { "phase_6_philosophical_depth": 1.0 },
       "scoringHints": {
-        "keywords": ["depth", "nuance", "paradox", "layered"],
+        "keywords": ["nuance", "paradox", "layered", "depth"],
         "keywordWeight": 0.6,
         "logicWeight": 0.4
       },
@@ -663,15 +644,13 @@
     {
       "id": "metric_logical_consistency",
       "name": "Logical Consistency",
-      "description": "Absence of internal contradictions and sustained argumentative rigor.",
+      "description": "Absence of contradiction and existence of coherent argumentation.",
       "unit": "normalized",
       "maxScore": 0.3,
       "defaultWeight": 0.10,
-      "phaseWeights": {
-        "phase_6_philosophical_depth": 1
-      },
+      "phaseWeights": { "phase_6_philosophical_depth": 1.0 },
       "scoringHints": {
-        "keywords": ["contradiction", "consistent", "therefore", "unless"],
+        "keywords": ["contradict", "unless", "thus", "therefore"],
         "keywordWeight": 0.6,
         "coherenceWeight": 0.4
       },
@@ -682,15 +661,13 @@
     {
       "id": "metric_existential_clarity",
       "name": "Existential Clarity",
-      "description": "Ability to articulate a clear ontological or teleological stance.",
+      "description": "Ability to articulate a clear stance about purpose or potential.",
       "unit": "normalized",
       "maxScore": 0.3,
       "defaultWeight": 0.10,
-      "phaseWeights": {
-        "phase_6_philosophical_depth": 1
-      },
+      "phaseWeights": { "phase_6_philosophical_depth": 1.0 },
       "scoringHints": {
-        "keywords": ["purpose", "meaning", "potential", "ever-expanding", "fixed"],
+        "keywords": ["meaning", "purpose", "potential", "ever-expanding"],
         "keywordWeight": 0.6,
         "clarityWeight": 0.4
       },
@@ -701,26 +678,39 @@
     {
       "id": "metric_ethical_coherence",
       "name": "Ethical Coherence",
-      "description": "Consistency of moral reasoning and consideration of consequences.",
+      "description": "Consideration of harm/benefit and moral consistency.",
       "unit": "normalized",
       "maxScore": 0.3,
       "defaultWeight": 0.08,
-      "phaseWeights": {
-        "phase_6_philosophical_depth": 1
-      },
+      "phaseWeights": { "phase_6_philosophical_depth": 1.0 },
       "scoringHints": {
-        "keywords": ["harm", "benefit", "duty", "rights", "virtue"],
+        "keywords": ["harm", "benefit", "duty", "rights", "consequence"],
         "keywordWeight": 0.6,
         "depthWeight": 0.4
       },
-      "calibrationFixtures": [],
+      "privacyFlag": false
+    },
+
+    {
+      "id": "metric_applied_strategy",
+      "name": "Applied Strategy",
+      "description": "Clarity of pragmatic steps to implement insights.",
+      "unit": "normalized",
+      "maxScore": 0.3,
+      "defaultWeight": 0.08,
+      "phaseWeights": { "phase_6_philosophical_depth": 1.0 },
+      "scoringHints": {
+        "keywords": ["plan", "next steps", "week", "7 days"],
+        "keywordWeight": 0.6,
+        "feasibilityWeight": 0.4
+      },
       "privacyFlag": false
     },
 
     {
       "id": "metric_adaptability_index",
       "name": "Adaptability Index",
-      "description": "Variance and reconfiguration across phases; measures flexibility.",
+      "description": "How well the user reconfigures across phases; computed from cross-phase variance and corrective action.",
       "unit": "normalized",
       "maxScore": 0.2,
       "defaultWeight": 0.10,
@@ -733,9 +723,8 @@
         "phase_6_philosophical_depth": 0.15
       },
       "scoringHints": {
-        "note": "Computed from variance and corrective actions across phases rather than single prompt."
+        "note": "Computed from standard deviation across normalized primary metrics and presence of corrective actions within a session."
       },
-      "calibrationFixtures": [],
       "privacyFlag": false
     }
   ],
@@ -744,19 +733,19 @@
     {
       "id": "p1_q1_describe_object_first_time",
       "phaseId": "phase_1_perceptual_awareness",
-      "text": "Describe an everyday object as if perceiving it for the first time.",
+      "text": "Describe an everyday object as if perceiving it for the first time. Focus on at least three sensory details.",
       "type": "free_text",
-      "weight": 1,
+      "weight": 1.0,
       "mapsToMetrics": [
         { "metricId": "metric_sensory_clarity", "contributionWeight": 0.6 },
         { "metricId": "metric_contextual_recognition", "contributionWeight": 0.3 },
         { "metricId": "metric_pattern_detection", "contributionWeight": 0.1 }
       ],
       "scoringHints": {
-        "keywords": ["novel", "texture", "first time"],
+        "keywords": ["novel", "texture", "first time", "sensory"],
         "keywordWeight": 0.6,
         "lengthWeight": 0.4,
-        "maxLen": 800
+        "coherenceHints": ["use concrete nouns", "avoid metaphors for primary scoring"]
       },
       "branching": {
         "onLow": "p1_q1_remedial_surface",
@@ -764,13 +753,42 @@
         "default": "p1_q2_list_sensory_features"
       },
       "timing": { "minExpectedSec": 30, "maxAllowedSec": 600 },
-      "exampleResponses": []
+      "exampleResponses": [
+        "A chipped ceramic mug: rough rim, thin hairline crack on the side, residual coffee ring that smells of caramel; it clinks with a hollow tone when tapped."
+      ],
+      "authorNotes": "Use gentle prompts to coax sensory specificity."
+    },
+
+    {
+      "id": "p1_q1_remedial_surface",
+      "phaseId": "phase_1_perceptual_awareness",
+      "text": "Try describing just the surface textures. What do you notice first when you touch the object?",
+      "type": "free_text",
+      "weight": 0.6,
+      "mapsToMetrics": [
+        { "metricId": "metric_sensory_clarity", "contributionWeight": 0.9 },
+        { "metricId": "metric_focus_stability", "contributionWeight": 0.1 }
+      ],
+      "branching": { "default": "p1_q2_list_sensory_features" }
+    },
+
+    {
+      "id": "p1_q1_advance_pattern",
+      "phaseId": "phase_1_perceptual_awareness",
+      "text": "Now look for patterns across similar objects. What common features emerge and why might they exist?",
+      "type": "free_text",
+      "weight": 0.8,
+      "mapsToMetrics": [
+        { "metricId": "metric_pattern_detection", "contributionWeight": 0.8 },
+        { "metricId": "metric_contextual_recognition", "contributionWeight": 0.2 }
+      ],
+      "branching": { "default": "p1_q2_list_sensory_features" }
     },
 
     {
       "id": "p1_q2_list_sensory_features",
       "phaseId": "phase_1_perceptual_awareness",
-      "text": "List as many sensory features of that object as you can — sight, sound, texture, smell, temperature.",
+      "text": "List sensory features (sight, sound, touch, smell, temperature) of the object in short bullets.",
       "type": "free_text",
       "weight": 0.8,
       "mapsToMetrics": [
@@ -784,29 +802,32 @@
     {
       "id": "p1_q3_detect_noise_sources",
       "phaseId": "phase_1_perceptual_awareness",
-      "text": "Identify any distractions or noise that made describing the object harder.",
+      "text": "What distractions or assumptions made this description harder? Name the top two.",
       "type": "free_text",
       "weight": 0.6,
       "mapsToMetrics": [
         { "metricId": "metric_cognitive_load_balance", "contributionWeight": 0.6 },
         { "metricId": "metric_focus_stability", "contributionWeight": 0.4 }
       ],
-      "scoringHints": {},
       "branching": { "default": "p2_q1_fix_team_deadlines" }
     },
 
     {
       "id": "p2_q1_fix_team_deadlines",
       "phaseId": "phase_2_cognitive_mechanics",
-      "text": "Design a sustainable fix for a team that keeps missing deadlines (describe steps and rationale).",
+      "text": "Design a sustainable fix for a team that keeps missing deadlines. Provide steps, responsible roles, and simple metrics to monitor progress.",
       "type": "free_text",
-      "weight": 1,
+      "weight": 1.0,
       "mapsToMetrics": [
         { "metricId": "metric_logic", "contributionWeight": 0.5 },
         { "metricId": "metric_systems_thinking", "contributionWeight": 0.3 },
         { "metricId": "metric_practical_creativity", "contributionWeight": 0.2 }
       ],
-      "scoringHints": {},
+      "scoringHints": {
+        "structureHints": ["numbered steps", "assign responsibilities", "mention measurable KPIs"],
+        "keywordWeight": 0.4,
+        "structureWeight": 0.6
+      },
       "branching": {
         "onLow": "p2_q1_remedial_structuring",
         "onHigh": "p2_q1_advanced_optimization",
@@ -815,30 +836,54 @@
     },
 
     {
+      "id": "p2_q1_remedial_structuring",
+      "phaseId": "phase_2_cognitive_mechanics",
+      "text": "If you were to simplify your solution to three essential steps, what would they be?",
+      "type": "free_text",
+      "weight": 0.6,
+      "mapsToMetrics": [
+        { "metricId": "metric_clarity_of_steps", "contributionWeight": 0.8 },
+        { "metricId": "metric_logic", "contributionWeight": 0.2 }
+      ],
+      "branching": { "default": "p2_q2_map_process_flow" }
+    },
+
+    {
+      "id": "p2_q1_advanced_optimization",
+      "phaseId": "phase_2_cognitive_mechanics",
+      "text": "Provide an optimization metric that could reduce delays by 30% and explain how you'd measure it.",
+      "type": "free_text",
+      "weight": 0.8,
+      "mapsToMetrics": [
+        { "metricId": "metric_practical_creativity", "contributionWeight": 0.6 },
+        { "metricId": "metric_systems_thinking", "contributionWeight": 0.4 }
+      ],
+      "branching": { "default": "p2_q2_map_process_flow" }
+    },
+
+    {
       "id": "p2_q2_map_process_flow",
       "phaseId": "phase_2_cognitive_mechanics",
-      "text": "Map the main process flow of the team and locate bottlenecks.",
+      "text": "Map the main process flow of the team and locate two bottlenecks—state why they occur and how you'd test the fix.",
       "type": "free_text",
       "weight": 0.8,
       "mapsToMetrics": [
         { "metricId": "metric_systems_thinking", "contributionWeight": 0.7 },
         { "metricId": "metric_clarity_of_steps", "contributionWeight": 0.3 }
       ],
-      "scoringHints": {},
       "branching": { "default": "p2_q3_evaluate_tradeoffs" }
     },
 
     {
       "id": "p2_q3_evaluate_tradeoffs",
       "phaseId": "phase_2_cognitive_mechanics",
-      "text": "Identify the main trade-offs in your proposed solution and justify them.",
+      "text": "Identify and justify the main trade-offs inherent in your proposed solution.",
       "type": "free_text",
       "weight": 0.6,
       "mapsToMetrics": [
         { "metricId": "metric_practical_creativity", "contributionWeight": 0.6 },
         { "metricId": "metric_logic", "contributionWeight": 0.4 }
       ],
-      "scoringHints": {},
       "branching": { "default": "p3_q1_phone_scrolling_anxiety" }
     },
 
@@ -847,7 +892,7 @@
       "phaseId": "phase_3_emotive_intelligence",
       "text": "Explain why scrolling your phone eases pre-speech anxiety.",
       "type": "free_text",
-      "weight": 1,
+      "weight": 1.0,
       "mapsToMetrics": [
         { "metricId": "metric_emotional_identification", "contributionWeight": 0.4 },
         { "metricId": "metric_causal_insight", "contributionWeight": 0.5 },
@@ -860,7 +905,7 @@
     {
       "id": "p3_q2_emotion_chain_explainer",
       "phaseId": "phase_3_emotive_intelligence",
-      "text": "Trace the chain of events that leads you from initial discomfort to the calming of scrolling.",
+      "text": "Trace the chain from initial discomfort to the calming effect—list the trigger, immediate reaction, and downstream soothing behaviors.",
       "type": "free_text",
       "weight": 0.8,
       "mapsToMetrics": [
@@ -873,7 +918,7 @@
     {
       "id": "p3_q3_compassionate_reframe",
       "phaseId": "phase_3_emotive_intelligence",
-      "text": "Offer a compassionate reframe and one small practice you could implement next time.",
+      "text": "Offer a compassionate reframe and one small practice to try next time.",
       "type": "free_text",
       "weight": 0.6,
       "mapsToMetrics": [
@@ -886,9 +931,9 @@
     {
       "id": "p4_q1_what_blocks_you",
       "phaseId": "phase_4_meta_cognitive_insight",
-      "text": "You understand your patterns but rarely act. What blocks you?",
+      "text": "You understand your patterns but rarely act; what blocks you from following through?",
       "type": "free_text",
-      "weight": 1,
+      "weight": 1.0,
       "mapsToMetrics": [
         { "metricId": "metric_meta_awareness", "contributionWeight": 0.5 },
         { "metricId": "metric_process_diagnosis", "contributionWeight": 0.3 },
@@ -901,7 +946,7 @@
     {
       "id": "p4_q2_map_your_process",
       "phaseId": "phase_4_meta_cognitive_insight",
-      "text": "Map the internal steps you take when you notice a pattern and what happens after.",
+      "text": "Map your internal sequence from noticing a pattern to taking (or not taking) action. Be concrete.",
       "type": "free_text",
       "weight": 0.8,
       "mapsToMetrics": [
@@ -914,7 +959,7 @@
     {
       "id": "p4_q3_propose_remedy",
       "phaseId": "phase_4_meta_cognitive_insight",
-      "text": "Propose a concrete remedy with steps and a short timeline.",
+      "text": "Propose a concrete remedy with steps, timeline, and an expected signal of success.",
       "type": "free_text",
       "weight": 0.6,
       "mapsToMetrics": [
@@ -927,9 +972,9 @@
     {
       "id": "p5_q1_invent_new_measurement",
       "phaseId": "phase_5_creative_intelligence",
-      "text": "Invent a new form of intelligence measurement superior to IQ. Describe its core principle and one sample task.",
+      "text": "Invent a new form of intelligence measurement superior to IQ. Describe its core principle and a sample task.",
       "type": "free_text",
-      "weight": 1,
+      "weight": 1.0,
       "mapsToMetrics": [
         { "metricId": "metric_novelty", "contributionWeight": 0.5 },
         { "metricId": "metric_integration", "contributionWeight": 0.3 },
@@ -942,7 +987,7 @@
     {
       "id": "p5_q2_map_integration_paths",
       "phaseId": "phase_5_creative_intelligence",
-      "text": "Map how your new measurement combines different domains and what it predicts.",
+      "text": "Map how your measurement combines domains and what it predicts about behavior or learning.",
       "type": "free_text",
       "weight": 0.8,
       "mapsToMetrics": [
@@ -955,7 +1000,7 @@
     {
       "id": "p5_q3_coherence_check",
       "phaseId": "phase_5_creative_intelligence",
-      "text": "Make a short coherence check: where could the idea fail and how would you adapt?",
+      "text": "Where could this idea fail and how would you adapt? Provide one short contingency.",
       "type": "free_text",
       "weight": 0.6,
       "mapsToMetrics": [
@@ -968,9 +1013,9 @@
     {
       "id": "p6_q1_human_potential_question",
       "phaseId": "phase_6_philosophical_depth",
-      "text": "Is human potential fixed or ever-expanding? Explain your view and the implications.",
+      "text": "Is human potential fixed or ever-expanding? Explain the implications of your view.",
       "type": "free_text",
-      "weight": 1,
+      "weight": 1.0,
       "mapsToMetrics": [
         { "metricId": "metric_depth", "contributionWeight": 0.5 },
         { "metricId": "metric_existential_clarity", "contributionWeight": 0.3 },
@@ -983,7 +1028,7 @@
     {
       "id": "p6_q2_ethics_of_solution",
       "phaseId": "phase_6_philosophical_depth",
-      "text": "Evaluate the ethical implications of your proposed measurement or remedy.",
+      "text": "Evaluate the ethical implications of the measurement or remedy you proposed.",
       "type": "free_text",
       "weight": 0.8,
       "mapsToMetrics": [
@@ -996,7 +1041,7 @@
     {
       "id": "p6_q3_apply_insight_to_life",
       "phaseId": "phase_6_philosophical_depth",
-      "text": "Describe one way you will apply the insights you've generated in the next 7 days.",
+      "text": "Describe one concrete way you will apply your insights in the next 7 days. Include one measurable signal of success.",
       "type": "free_text",
       "weight": 0.6,
       "mapsToMetrics": [
@@ -1009,113 +1054,181 @@
 
   "scoring": {
     "compositeFormula": "weighted_sum_normalized",
-    "metricNormalization": "perMetricMax -> normalize to 0..1",
+    "compositeNormalization": {
+      "method": "perMetricMax_then_weighted_sum",
+      "scaleTo": 1.0,
+      "reportScale": 700
+    },
+    "metricNormalizationDetails": {
+      "eachMetricRawIs": "0..1",
+      "perMetricMaxIs": "metric.maxScore",
+      "normalizeMethod": "raw / metric.maxScore"
+    },
     "tierBoundaries": {
       "Explorer": 0.5,
       "Architect": 0.75,
       "Visionary": 0.94
     },
     "tierReportLabels": {
-      "Explorer": "Explorer (Introductory session)",
-      "Architect": "Architect (Intermediate depth)",
-      "Visionary": "Visionary (Advanced synthesis)"
+      "Explorer": "Explorer (Introductory)",
+      "Architect": "Architect (Intermediate)",
+      "Visionary": "Visionary (Advanced)"
     },
     "outlierDetectionRules": {
       "varianceStddevCap": 0.25,
-      "maxChangePerSession": 0.15
-    },
-    "adaptationRules": {
-      "weightAdjustmentOnDrift": {
-        "enabled": false,
-        "method": "conservative_delta",
-        "deltaCap": 0.02
-      },
-      "promptDifficultyShift": {
-        "enabled": true,
-        "onLowPerformance": "insert_remedial_prompt",
-        "onHighPerformance": "insert_challenge_prompt"
-      }
+      "maxDeltaPerSession": 0.15,
+      "forceManualReviewIf": "compositeChange > 0.25 && userOptIn=false"
     },
     "auditTrace": true,
-    "computationNotes": "Each answer produces raw scores per mapped metric via scoring engine (keyword-match, length heuristics, coherence heuristics). Weighted contributions sum into metric raw totals. Metrics normalized then combined by defaultWeight to produce composite."
+    "scoringMethods": {
+      "hybrid_keyword_length_coherence": {
+        "description": "Primary method for free_text prompts: keyword match (semantic), response length normalized to expected, and coherence heuristics.",
+        "steps": [
+          "tokenize response",
+          "count keyword matches against prompt.scoringHints.keywords",
+          "compute keywordScore = matches / keywords.length",
+          "compute lengthScore = min(responseLength, maxLen) / maxLen",
+          "compute coherenceScore = coherenceHeuristic(response) // see appendix heuristics",
+          "raw = weighted sum: kw*w1 + length*w2 + coh*w3 (weights defined per prompt)",
+          "clamp raw to 0..1"
+        ]
+      },
+      "rating_scale": {
+        "description": "Maps numeric rating to 0..1 by dividing by max rating."
+      }
+    },
+    "coherenceHeuristics": {
+      "connectiveCount": { "op": "count", "tokens": ["therefore", "because", "so", "thus", "however"] },
+      "sentenceStructure": { "op": "parse_complexity", "penaltyShortFragment": true },
+      "metaphorUsage": { "op": "detect_metaphor", "bonusForRelevance": false }
+    },
+    "bayesianTemplates": {
+      "description": "Templates to compute posterior belief about latent traits. Not computed by default; enabled when adapter 'bayesian_engine' is active.",
+      "template": {
+        "prior": "metric priors from calibration fixtures",
+        "likelihood": "P(response|trait) approximated via scoring model",
+        "posterior": "normalize(prior * likelihood)"
+      }
+    }
   },
 
   "branching": {
     "nodes": [
       {
-        "id": "b_p1_q1_low",
-        "condition": { "op": "<", "left": { "source": "lastAnswer.raw" }, "right": 0.35 },
-        "action": { "type": "gotoPrompt", "target": "p1_q1_remedial_surface" }
+        "id": "b_default_low",
+        "description": "Generic low-performance branch",
+        "condition": { "type": "lt", "left": { "source": "lastAnswer.raw" }, "right": 0.35 },
+        "action": { "type": "gotoPrompt", "target": "insert_remedial_prompt" }
       },
       {
-        "id": "b_generic_high",
-        "condition": { "op": ">", "left": { "source": "lastAnswer.raw" }, "right": 0.75 },
+        "id": "b_default_high",
+        "description": "Generic high-performance branch",
+        "condition": { "type": "gt", "left": { "source": "lastAnswer.raw" }, "right": 0.75 },
         "action": { "type": "gotoPrompt", "target": "insert_challenge_prompt" }
+      },
+      {
+        "id": "b_phase_transition_check",
+        "description": "When minPromptsAnswered and minMetricNormalized satisfied, move to next phase",
+        "condition": {
+          "type": "and",
+          "clauses": [
+            { "type": "gte", "left": { "source": "phase.promptsAnswered" }, "right": { "source": "phase.exitRules.minPromptsAnswered" } },
+            { "type": "gte", "left": { "source": "metric.primaryMetricNormalized" }, "right": { "source": "phase.exitRules.minMetricNormalized" } }
+          ]
+        },
+        "action": { "type": "gotoPhase", "target": "next" }
       }
     ],
-    "expressionLanguage": "jsonlogic-like"
+    "expressionLanguage": "jsonlogic-structured"
   },
 
   "archetypes": [
     {
       "id": "arch_reflective_architect",
       "label": "Reflective Architect",
-      "description": "High meta-awareness paired with strong logical structuring.",
-      "ruleExpression": "metric_meta_awareness >= 0.7 && metric_logic >= 0.6",
+      "description": "High meta-awareness and logical structuring. Strong at modeling processes and proposing clear remedies.",
+      "ruleExpression": { "and": [ { ">=": [ { "var": "metric_meta_awareness" }, 0.7 ] }, { ">=": [ { "var": "metric_logic" }, 0.6 ] } ] },
       "archetypeWeights": { "meta": 0.6, "logic": 0.4 },
       "recommendedExercises": [
-        "structure-first abstraction drill",
-        "apply-synthesis practice"
+        { "id": "ex_structuring_drill", "title": "Structure-first abstraction drill" },
+        { "id": "ex_apply_translation", "title": "Apply synthesis to a 1-week micro-project" }
       ],
-      "practitionerNotes": "Emphasize applied translation to reduce overanalysis."
+      "practitionerNotes": "Encourage translating reflection into measurable experiments."
     },
+
     {
       "id": "arch_empathic_inventor",
       "label": "Empathic Inventor",
-      "description": "High creativity and emotional literacy; strong integration of feeling into novel solutions.",
-      "ruleExpression": "metric_novelty >= 0.65 && metric_emotional_identification >= 0.6",
-      "archetypeWeights": { "creativity": 0.6, "emotion": 0.4 },
-      "recommendedExercises": ["targeted feasibility checks", "structured implementation plans"]
+      "description": "Creative and emotionally literate; strong in integrated idea formation with affective insight.",
+      "ruleExpression": { "and": [ { ">=": [ { "var": "metric_novelty" }, 0.65 ] }, { ">=": [ { "var": "metric_emotional_identification" }, 0.6 ] } ] },
+      "recommendedExercises": [
+        { "id": "ex_feasibility_checks", "title": "Feasibility check practice" },
+        { "id": "ex_structured_proto", "title": "Structure creative ideas into prototypes" }
+      ]
     },
+
     {
       "id": "arch_visionary_synthesist",
       "label": "Visionary Synthesist",
-      "description": "High logic, philosophy, and creativity producing large-scale integrative models.",
-      "ruleExpression": "metric_logic >= 0.6 && metric_depth >= 0.6 && metric_novelty >= 0.5",
-      "recommendedExercises": ["grounding operational tasks", "slow-implementation plans"]
+      "description": "Combines deep logic, philosophical depth and creativity for high-level synthesis.",
+      "ruleExpression": { "and": [ { ">=": [ { "var": "metric_logic" }, 0.6 ] }, { ">=": [ { "var": "metric_depth" }, 0.6 ] } ] },
+      "recommendedExercises": [ { "id": "ex_grounding_ops", "title": "Ground visionary ideas in immediate action" } ]
     },
+
     {
       "id": "arch_grounded_operator",
       "label": "Grounded Operator",
-      "description": "Strong practical logic with lower meta-awareness; excels in execution.",
-      "ruleExpression": "metric_logic >= 0.7 && metric_meta_awareness < 0.45",
-      "recommendedExercises": ["meta-reflection micro-practices", "awareness journaling"]
+      "description": "Strong execution logic, lower meta-awareness. Great at implementation and operational clarity.",
+      "ruleExpression": { "and": [ { ">=": [ { "var": "metric_logic" }, 0.7 ] }, { "<": [ { "var": "metric_meta_awareness" }, 0.45 ] } ] },
+      "recommendedExercises": [ { "id": "ex_meta_micro", "title": "Meta-reflection micro-practices" } ]
     },
+
     {
       "id": "arch_dreaming_idealist",
       "label": "Dreaming Idealist",
-      "description": "High emotion and novelty but lower logic; imaginative but not always practical.",
-      "ruleExpression": "metric_emotional_identification >= 0.6 && metric_novelty >= 0.6 && metric_logic < 0.45",
-      "recommendedExercises": ["structured prototyping", "feasibility evaluations"]
+      "description": "High emotional and novelty scores, lower practical logic. Rich imaginative output needing structural scaffolding.",
+      "ruleExpression": { "and": [ { ">=": [ { "var": "metric_emotional_identification" }, 0.6 ] }, { ">=": [ { "var": "metric_novelty" }, 0.6 ] }, { "<": [ { "var": "metric_logic" }, 0.45 ] } ] },
+      "recommendedExercises": [ { "id": "ex_prototyping", "title": "Structured prototyping sessions" } ]
     },
+
     {
       "id": "arch_balanced_strategist",
       "label": "Balanced Strategist",
-      "description": "Even scores across domains, indicates adaptable and integrated cognition.",
-      "ruleExpression": "stddev([all_primary_metrics]) < 0.12",
-      "recommendedExercises": ["leadership application", "mentoring others"]
+      "description": "Evenly-distributed metrics indicating a balanced cognitive profile.",
+      "ruleExpression": { "<": [ { "var": "stddev_all_primary_metrics" }, 0.12 ] },
+      "recommendedExercises": [ { "id": "ex_leadership", "title": "Apply in leadership contexts" } ]
     }
   ],
 
   "tiers": {
     "definitions": [
-      { "id": "Explorer", "min": 0, "max": 0.5, "recommendedDurationMinutes": [15, 25], "description": "Introductory exploratory session." },
-      { "id": "Architect", "min": 0.5, "max": 0.75, "recommendedDurationMinutes": [30, 45], "description": "Intermediate session for structured work." },
-      { "id": "Visionary", "min": 0.75, "max": 1.0, "recommendedDurationMinutes": [60, 90], "description": "Deep session with applied synthesis." }
+      {
+        "id": "Explorer",
+        "minNorm": 0.0,
+        "maxNorm": 0.5,
+        "humanRange": [0, 350],
+        "recommendedDurationMinutes": [15, 25],
+        "description": "Exploratory session; foundational reflection."
+      },
+      {
+        "id": "Architect",
+        "minNorm": 0.5,
+        "maxNorm": 0.75,
+        "humanRange": [351, 525],
+        "recommendedDurationMinutes": [30, 45],
+        "description": "Intermediate depth; structured synthesis."
+      },
+      {
+        "id": "Visionary",
+        "minNorm": 0.75,
+        "maxNorm": 1.0,
+        "humanRange": [526, 700],
+        "recommendedDurationMinutes": [60, 90],
+        "description": "Advanced synthesis; high-level integration."
+      }
     ],
-    "reporting": {
-      "humanLabelScale": 700,
-      "mappingNote": "Normalized composite * humanLabelScale -> rounded integer"
+    "mapping": {
+      "compositeToHumanPoints": "Math.round(compositeNorm * 700)"
     }
   },
 
@@ -1124,14 +1237,16 @@
     "mode": "local_encrypted",
     "format": "jsonld",
     "eventsToRecord": [
-      "session_start",
+      "session_created",
       "prompt_presented",
       "response_submitted",
-      "score_computed",
-      "branch_taken",
-      "phase_completed",
+      "scoring_computed",
+      "branch_decision",
+      "phase_transition",
       "archetype_mapped",
-      "composite_reported"
+      "composite_reported",
+      "user_export",
+      "data_deleted"
     ],
     "exportable": true,
     "retentionDays": 30,
@@ -1141,44 +1256,59 @@
       "publicKeyRef": null
     },
     "explainabilityTemplates": {
-      "session_start": "Session created with schema.version and session.id.",
-      "response_submitted": "Response text (hashed optionally) and raw metric contribution values.",
-      "score_computed": "Metric raw totals, normalized values, composite formula breakdown."
-    }
+      "session_created": "Session started with schema.version, session.id, userOptIn flags.",
+      "response_submitted": "Response text (hashed if privacy flag), responseTimeMs, raw metric contributions.",
+      "scoring_computed": "Per-metric raw totals, normalized, weighted contributions, composite formula."
+    },
+    "encryptionNotes": "If encryptionAtRest is true, use WebCrypto API or server-side encryption for exports."
   },
 
   "adapters": {
-    "external_synthesis": {
+    "bayesian_engine": {
       "enabled": false,
-      "id": "adapter_hf_space_hayden",
+      "id": "adapter_bayes_local",
+      "type": "local_bayesian",
+      "scriptPath": "engine/adapters/bayesian_engine.js",
+      "contract": {
+        "input": { "sessionSummary": "object", "metricScores": "object" },
+        "output": { "posterior": "object", "evidence": "object" }
+      },
+      "fallback": { "type": "none" }
+    },
+    "huggingface_space": {
+      "enabled": false,
+      "id": "adapter_hf_space",
       "type": "huggingface_space",
       "endpoint": "",
       "auth": { "method": "none" },
       "rateLimitPerMin": 60,
-      "fallback": { "type": "local_stub", "id": "stub_synth_simple" }
+      "fallback": { "type": "stub", "id": "stub_simple_synth" }
     },
-    "grok_adapter": {
+    "grok_api": {
       "enabled": false,
       "id": "adapter_grok",
       "type": "grok_api",
       "endpoint": "",
-      "auth": { "method": "key", "keyRef": "ENV_GROK_KEY" },
+      "auth": { "method": "key", "keyEnvRef": "ENV_GROK_KEY" },
       "rateLimitPerMin": 100,
-      "fallback": { "type": "local_stub", "id": "stub_synth_simple" }
+      "costEstimatePerRequestUSD": 0.002,
+      "fallback": { "type": "stub", "id": "stub_simple_synth" }
     },
     "local_js_model": {
       "enabled": false,
       "id": "adapter_local_js",
       "type": "local_js_model",
-      "scriptPath": "engine/local_model.js",
+      "scriptPath": "engine/adapters/local_model.js",
       "contract": {
         "input": { "sessionSummary": "object", "recentAnswers": "array" },
-        "output": { "synthesis": "string", "explanation": "string" }
+        "output": { "synthesis": "string", "explanation": "string", "confidence": "0..1" }
       }
     },
     "stubs": {
-      "stub_synth_simple": {
-        "description": "Simple in-browser template synthesizer returning templated feedback."
+      "stub_simple_synth": {
+        "enabled": true,
+        "id": "stub_simple_synth",
+        "behavior": "Return templated feedback using top metric deficits and three recommended exercises from archetype mapping."
       }
     }
   },
@@ -1208,28 +1338,38 @@
       "ttsEngine": "browser",
       "defaultRate": 1.0,
       "pauseAfterSentenceMs": 400
+    },
+    "renderHints": {
+      "phaseLayout": { "1": "stacked", "2": "twoColumn", "3": "single", "4": "expanded", "5": "canvas", "6": "summary" }
     }
   },
 
   "fixtures": {
     "calibrationSets": [
       {
-        "id": "cal_set_01",
-        "name": "Pilot Group Basic",
-        "description": "Small pilot expected outputs for initial weighting",
+        "id": "pilot_smallgroup_202510",
+        "name": "Pilot small group 2025-10",
+        "description": "Initial pilot set for weight calibration",
         "samples": [
           {
-            "id": "cal_001",
-            "sessionSummary": { "answers": [ { "promptId": "p1_q1_describe_object_first_time", "response": "A rough glass bottle..."} ] },
-            "expectedMetrics": { "metric_sensory_clarity": 0.7, "metric_contextual_recognition": 0.4 },
+            "id": "pilot_001",
+            "inputs": [
+              { "promptId": "p1_q1_describe_object_first_time", "response": "A small cool metal key with smooth edges, two grooves, and a tiny tarnish near the head. It smells faintly of oil." },
+              { "promptId": "p2_q1_fix_team_deadlines", "response": "Implement weekly brief standups, pair deadlines to clear owners, measure on-time delivery percent." }
+            ],
+            "expectedMetrics": {
+              "metric_sensory_clarity": 0.72,
+              "metric_logic": 0.65
+            },
             "expectedArchetype": "arch_reflective_architect"
           }
         ]
       }
     ],
     "validationRules": [
-      { "id": "v1_no_missing_metric", "description": "Every phase must reference at least one metric." },
-      { "id": "v2_sum_weights_less_than_1", "description": "Sum of defaultWeight across metrics must be <= 1.5 (tunable constraint)" }
+      { "id": "v1_phases_count", "description": "There must be exactly six phases." },
+      { "id": "v2_metric_map", "description": "Each phase must have at least one primary metric." },
+      { "id": "v3_prompts_exist", "description": "Each prompt referenced in a phase must exist in prompts array." }
     ]
   },
 
@@ -1244,30 +1384,29 @@
     ],
     "anonymization": {
       "method": "hash_salt",
-      "saltRef": "ENV_TELEMETRY_SALT",
-      "removePII": true
+      "saltEnvRef": "ENV_TELEMETRY_SALT"
     },
     "exportEndpoints": []
   },
 
   "evolution": {
     "schemaHistory": [
-      { "version": "7.1.0", "date": "2025-10-30T12:00:00Z", "notes": "Initial schema embodiment" }
+      { "version": "7.1.0-fully-expanded", "date": "2025-10-30T12:00:00Z", "notes": "Initial fully expanded schema." }
     ],
     "calibrationBatches": [],
     "approvalWorkflow": {
-      "weightChangeRequires": ["author", "ethicsChair"],
+      "weightChangeRequires": [ "author", "ethicsChair" ],
       "changeLogRequired": true
     },
     "devNotes": [
-      "This master file is the single authoritative config for MCIF 7.1 engine.",
-      "Keep prompts modular in /prompts for easier translation and iteration."
+      "This file is the authoritative MCIF schema. For maintainability, keep prompts in /prompts/ files and reference them here.",
+      "Large prompt banks and language variants should be split into /prompts/phase_x_prompts.json"
     ]
   },
 
   "dev": {
     "entryPoint": "engine/logic.js",
-    "sampleLoadScript": "const schema = await fetch('/schema/mcif-schema.json').then(r=>r.json());",
+    "sampleLoadScript": "const schema = await (await fetch('/schema/mcif-schema.json')).json();",
     "testCommands": {
       "lint": "jsonlint schema/mcif-schema.json",
       "validate": "node tools/validate-schema.js schema/mcif-schema.json"
@@ -1277,5 +1416,37 @@
       "js": { "eslintConfig": ".eslintrc.json" }
     },
     "contributors": [ "Hayden Andrew Carr" ]
+  },
+
+  "appendix": {
+    "coherenceHeuristicDetail": {
+      "goal": "Provide a simple deterministic coherence heuristic for front-end scoring.",
+      "algorithm": [
+        "Split response into sentences.",
+        "Compute connectiveRatio = (#connectiveTokens / sentenceCount) where connectiveTokens are 'therefore, because, thus, however'.",
+        "Compute averageSentenceLength = tokens / sentenceCount; penalize extremely short fragments.",
+        "Compute metaphorPenalty if metaphor detected and unrelated to prompt; low penalty if metaphor enhances insight.",
+        "coherenceScore = clamp(0,1, 0.5*normalized(connectiveRatio) + 0.3*normalized(avgSentenceLength) + 0.2*(1 - metaphorPenalty))."
+      ],
+      "notes": "This is deterministic and transparent; replace with semantic similarity later if adapter present."
+    },
+
+    "bayesianTemplateDetail": {
+      "goal": "Explain how the bayesian_engine adapter should compute posteriors.",
+      "pseudocode": [
+        "For each latent trait T (metric), set prior P(T) from calibration fixtures.",
+        "Given response R, compute likelihood L(R|T) via scoring engine heuristics (normalize).",
+        "Posterior P(T|R) ~ normalize( P(T) * L(R|T) ).",
+        "Combine multiple prompts by multiplying likelihoods (or using log-sum) and renormalizing."
+      ],
+      "notes": "When enabling Bayesian adapter, ensure prior calibration is robust using fixtures."
+    },
+
+    "jsonlogic_examples": [
+      {
+        "expr": { "and": [ { ">=": [ { "var": "metric_meta_awareness" }, 0.7 ] }, { ">=": [ { "var": "metric_logic" }, 0.6 ] } ] },
+        "meaning": "Meta-awareness >= 0.7 AND Logic >= 0.6"
+      }
+    ]
   }
 }
