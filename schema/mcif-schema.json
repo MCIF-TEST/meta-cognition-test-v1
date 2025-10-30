@@ -1,1 +1,1336 @@
-{ "note": "Placeholder for MCIF schema" } 
+{
+  "meta": {
+    "title": "MCIF 7.1 Master Schema",
+    "version": "7.1.0",
+    "schemaType": "MCIF_CORE",
+    "author": "Hayden Andrew Carr | Meta-Cognitive Intelligence Project",
+    "createdAt": "2025-10-30T12:00:00Z",
+    "updatedAt": "2025-10-30T12:00:00Z",
+    "description": "Master schema for the Meta Cognition Test (MCIF 7.1). Defines phases, metrics, prompts (by ID), scoring, archetypes, ledger, adapters, UI hints, fixtures, and evolution metadata. Scale normalized to 0..1 for internal computations. Human report scale default = 700 points.",
+    "changelog": [
+      {
+        "version": "7.1.0",
+        "date": "2025-10-30T12:00:00Z",
+        "author": "Hayden Andrew Carr",
+        "notes": "Initial master schema skeleton and full phase/metric registry based on MCIF 7.1 white page."
+      }
+    ]
+  },
+
+  "config": {
+    "internalScale": {
+      "min": 0,
+      "max": 1,
+      "description": "Normalized internal computation range (0..1)"
+    },
+    "humanReportScale": 700,
+    "normalizationMethod": "minmax",
+    "questionThresholds": {
+      "low": 0.35,
+      "high": 0.75
+    },
+    "sessionDefaults": {
+      "maxDurationMinutes": 90,
+      "autoSaveIntervalSec": 30,
+      "allowPause": true
+    },
+    "privacyDefaults": {
+      "anonymizeByDefault": true,
+      "retentionDaysDefault": 30,
+      "consentRequired": true
+    },
+    "weights": {
+      "globalMetricWeights": {
+        "Perception": 0.15,
+        "Logic": 0.15,
+        "Creativity": 0.15,
+        "Emotion": 0.15,
+        "Adaptability": 0.10,
+        "MetaAwareness": 0.15,
+        "Philosophy": 0.15
+      },
+      "compositeNormalization": "sum_of_weights"
+    },
+    "runtime": {
+      "ledgerModeDefault": "local_encrypted",
+      "adapterFallbackBehavior": "no_external_call",
+      "maxPromptsPerPhaseDefault": 5,
+      "minPromptResponseTimeSec": 10
+    }
+  },
+
+  "ethics": {
+    "consentTemplates": [
+      {
+        "id": "consent_v1",
+        "title": "MCIF Participant Consent v1",
+        "text": "By proceeding you consent to MCIF 7.1 collecting anonymized session vectors for research and calibration. Personal data is not stored unless explicitly authorized. You have the right to export or delete your data at any time.",
+        "requireSignature": false
+      }
+    ],
+    "dataRetentionPolicy": {
+      "defaultDays": 30,
+      "exportable": true,
+      "deletionProcedure": "User may request export and deletion via UI; ledger events remain auditable but not personally identifiable after anonymization."
+    },
+    "auditPolicy": {
+      "whoCanView": ["owner", "approved_researchers"],
+      "encryptionAtRest": true,
+      "encryptionAlgorithm": "AES-256-GCM",
+      "explainabilityRules": [
+        "Each composite score must link to the per-question contributions.",
+        "Each branching decision must store the evaluated condition and value.",
+        "Adaptation rules applied during a session must be logged with timestamp and rationale."
+      ]
+    },
+    "ethicsCouncil": {
+      "enabled": true,
+      "info": "Refer to project governance docs for council membership and review schedule."
+    }
+  },
+
+  "phases": [
+    {
+      "id": "phase_1_perceptual_awareness",
+      "index": 1,
+      "name": "Perceptual Awareness",
+      "summary": "Sensory detail, contextual framing, pattern detection; measures fidelity of initial observation and noise filtering.",
+      "goals": [
+        "Elicit vivid sensory description.",
+        "Measure ability to link perception to concept.",
+        "Detect early bias or omission."
+      ],
+      "durationEstimateMinutes": 15,
+      "primaryMetrics": [
+        "metric_sensory_clarity",
+        "metric_contextual_recognition",
+        "metric_pattern_detection"
+      ],
+      "secondaryMetrics": [
+        "metric_focus_stability",
+        "metric_cognitive_load_balance"
+      ],
+      "prompts": [
+        "prompt_p1_q1",
+        "prompt_p1_q2",
+        "prompt_p1_q3"
+      ],
+      "entryRules": {
+        "always": true
+      },
+      "exitRules": {
+        "minMetricNormalized": 0.10,
+        "maxPrompts": 5
+      },
+      "uiHints": {
+        "colorHex": "#6AA6FF",
+        "progressSegmentWeight": 1,
+        "tts": {
+          "enabled": false
+        },
+        "accessibility": {
+          "focusTimeoutSec": 0,
+          "dyslexiaFont": true
+        }
+      },
+      "phaseNotes": "Begin with open, sensory-first prompts. Avoid evaluative language."
+    },
+
+    {
+      "id": "phase_2_cognitive_mechanics",
+      "index": 2,
+      "name": "Cognitive Mechanics",
+      "summary": "Logical flow, causal mapping, and systems reasoning; measures structure and practical creativity.",
+      "goals": [
+        "Assess ability to sequence reasoning.",
+        "Evaluate systems-level thinking and practical creativity."
+      ],
+      "durationEstimateMinutes": 30,
+      "primaryMetrics": [
+        "metric_logic",
+        "metric_systems_thinking",
+        "metric_practical_creativity"
+      ],
+      "secondaryMetrics": [
+        "metric_clarity_of_argument",
+        "metric_evidence_linking"
+      ],
+      "prompts": [
+        "prompt_p2_q1",
+        "prompt_p2_q2",
+        "prompt_p2_q3"
+      ],
+      "entryRules": {
+        "requiresPhaseCompletion": "phase_1_perceptual_awareness"
+      },
+      "exitRules": {
+        "minMetricNormalized": 0.15,
+        "maxPrompts": 6
+      },
+      "uiHints": {
+        "colorHex": "#7FE3A3",
+        "progressSegmentWeight": 1
+      },
+      "phaseNotes": "Include scenario-based prompts to measure systemic solutions."
+    },
+
+    {
+      "id": "phase_3_emotive_intelligence",
+      "index": 3,
+      "name": "Emotive Intelligence",
+      "summary": "Emotional literacy, causal insight into affective states, and self-compassion.",
+      "goals": [
+        "Measure emotional labeling and depth.",
+        "Assess causal models for emotional states."
+      ],
+      "durationEstimateMinutes": 20,
+      "primaryMetrics": [
+        "metric_emotional_identification",
+        "metric_causal_insight",
+        "metric_self_compassion"
+      ],
+      "secondaryMetrics": [
+        "metric_emotional_granularity",
+        "metric_emotional_regulation"
+      ],
+      "prompts": [
+        "prompt_p3_q1",
+        "prompt_p3_q2",
+        "prompt_p3_q3"
+      ],
+      "entryRules": {
+        "requiresPhaseCompletion": "phase_2_cognitive_mechanics"
+      },
+      "exitRules": {
+        "minMetricNormalized": 0.12,
+        "maxPrompts": 5
+      },
+      "uiHints": {
+        "colorHex": "#FFD27A",
+        "progressSegmentWeight": 1
+      },
+      "phaseNotes": "Use introspective prompts and encourage compassionate language."
+    },
+
+    {
+      "id": "phase_4_meta_cognitive_insight",
+      "index": 4,
+      "name": "Meta-Cognitive Insight",
+      "summary": "Awareness of thinking processes, ability to diagnose personal cognitive patterns and form remedies.",
+      "goals": [
+        "Elicit awareness of habitual cognitive patterns.",
+        "Measure capacity for process diagnosis and remedy clarity."
+      ],
+      "durationEstimateMinutes": 20,
+      "primaryMetrics": [
+        "metric_meta_awareness",
+        "metric_process_diagnosis",
+        "metric_remedy_clarity"
+      ],
+      "secondaryMetrics": [
+        "metric_error_correction_speed",
+        "metric_reflective_coherence"
+      ],
+      "prompts": [
+        "prompt_p4_q1",
+        "prompt_p4_q2",
+        "prompt_p4_q3"
+      ],
+      "entryRules": {
+        "requiresPhaseCompletion": "phase_3_emotive_intelligence"
+      },
+      "exitRules": {
+        "minMetricNormalized": 0.15,
+        "maxPrompts": 6
+      },
+      "uiHints": {
+        "colorHex": "#C28EFF",
+        "progressSegmentWeight": 1
+      },
+      "phaseNotes": "This phase is sensitive; ensure consent and maintain nonjudgmental scaffolding."
+    },
+
+    {
+      "id": "phase_5_creative_intelligence",
+      "index": 5,
+      "name": "Creative Intelligence",
+      "summary": "Originality, cross-domain integration, and conceptual innovation.",
+      "goals": [
+        "Measure novelty and coherence.",
+        "Assess integration across domains."
+      ],
+      "durationEstimateMinutes": 25,
+      "primaryMetrics": [
+        "metric_novelty",
+        "metric_coherence",
+        "metric_integration"
+      ],
+      "secondaryMetrics": [
+        "metric_analogy_formation",
+        "metric_divergent_thinking"
+      ],
+      "prompts": [
+        "prompt_p5_q1",
+        "prompt_p5_q2",
+        "prompt_p5_q3"
+      ],
+      "entryRules": {
+        "requiresPhaseCompletion": "phase_4_meta_cognitive_insight"
+      },
+      "exitRules": {
+        "minMetricNormalized": 0.12,
+        "maxPrompts": 6
+      },
+      "uiHints": {
+        "colorHex": "#FF9FB3",
+        "progressSegmentWeight": 1
+      },
+      "phaseNotes": "Encourage cross-domain metaphors and synthesis."
+    },
+
+    {
+      "id": "phase_6_philosophical_depth",
+      "index": 6,
+      "name": "Philosophical Depth",
+      "summary": "Abstraction, ethical reasoning, and existential clarity.",
+      "goals": [
+        "Test abstraction and consistency in philosophical reasoning.",
+        "Measure applied translation of insight into ethical stance."
+      ],
+      "durationEstimateMinutes": 25,
+      "primaryMetrics": [
+        "metric_depth",
+        "metric_logical_consistency",
+        "metric_existential_clarity"
+      ],
+      "secondaryMetrics": [
+        "metric_ethical_consistency",
+        "metric_applied_translation"
+      ],
+      "prompts": [
+        "prompt_p6_q1",
+        "prompt_p6_q2",
+        "prompt_p6_q3"
+      ],
+      "entryRules": {
+        "requiresPhaseCompletion": "phase_5_creative_intelligence"
+      },
+      "exitRules": {
+        "minMetricNormalized": 0.15,
+        "maxPrompts": 6
+      },
+      "uiHints": {
+        "colorHex": "#8DD3FF",
+        "progressSegmentWeight": 1
+      },
+      "phaseNotes": "End session with synthesis and applied reflection prompts."
+    }
+  ],
+
+  "metrics": [
+    {
+      "id": "metric_sensory_clarity",
+      "name": "Sensory Clarity",
+      "description": "Degree of vivid sensory description and discrimination (colors, textures, relational details).",
+      "unit": "points",
+      "maxScore": 50,
+      "defaultWeight": 0.15,
+      "phaseWeights": {
+        "phase_1_perceptual_awareness": 1.0
+      },
+      "scoringHints": {
+        "keywords": ["texture", "color", "sound", "smell", "novel"],
+        "keywordWeight": 0.5,
+        "lengthWeight": 0.5,
+        "maxLen": 800
+      },
+      "privacyFlag": false,
+      "calibrationFixtures": []
+    },
+    {
+      "id": "metric_contextual_recognition",
+      "name": "Contextual Recognition",
+      "description": "Ability to place an observation into relevant contextual frames and note relationships.",
+      "unit": "points",
+      "maxScore": 25,
+      "defaultWeight": 0.10,
+      "phaseWeights": {
+        "phase_1_perceptual_awareness": 1.0
+      },
+      "scoringHints": {
+        "keywords": ["context", "situated", "frame", "relationship"],
+        "keywordWeight": 0.6,
+        "lengthWeight": 0.4,
+        "maxLen": 600
+      },
+      "privacyFlag": false,
+      "calibrationFixtures": []
+    },
+    {
+      "id": "metric_pattern_detection",
+      "name": "Pattern Detection",
+      "description": "Recognizing recurring structure, motif, or function within the observed subject.",
+      "unit": "points",
+      "maxScore": 25,
+      "defaultWeight": 0.10,
+      "phaseWeights": {
+        "phase_1_perceptual_awareness": 1.0
+      },
+      "scoringHints": {
+        "keywords": ["pattern", "repeat", "motif", "structure"],
+        "keywordWeight": 0.6,
+        "lengthWeight": 0.4,
+        "maxLen": 500
+      },
+      "privacyFlag": false,
+      "calibrationFixtures": []
+    },
+    {
+      "id": "metric_focus_stability",
+      "name": "Focus Stability",
+      "description": "Consistency of attention during the prompt response window; measured by time and answer coherence.",
+      "unit": "points",
+      "maxScore": 10,
+      "defaultWeight": 0.05,
+      "phaseWeights": {
+        "phase_1_perceptual_awareness": 0.6,
+        "phase_2_cognitive_mechanics": 0.4
+      },
+      "scoringHints": {
+        "timing": {"minExpectedSec": 10, "maxExpectedSec": 600}
+      },
+      "privacyFlag": false,
+      "calibrationFixtures": []
+    },
+
+    {
+      "id": "metric_cognitive_load_balance",
+      "name": "Cognitive Load Balance",
+      "description": "Degree to which the subject balances detail with economy; over-verbosity vs. meaningful brevity.",
+      "unit": "points",
+      "maxScore": 10,
+      "defaultWeight": 0.05,
+      "phaseWeights": {
+        "phase_1_perceptual_awareness": 0.6,
+        "phase_5_creative_intelligence": 0.4
+      },
+      "scoringHints": {
+        "idealRange": {"minWords": 50, "maxWords": 400}
+      },
+      "privacyFlag": false,
+      "calibrationFixtures": []
+    },
+
+    {
+      "id": "metric_logic",
+      "name": "Logic",
+      "description": "Clarity of reasoning, stepwise argumentation, and causal coherence.",
+      "unit": "points",
+      "maxScore": 40,
+      "defaultWeight": 0.15,
+      "phaseWeights": {
+        "phase_2_cognitive_mechanics": 1.0,
+        "phase_6_philosophical_depth": 0.3
+      },
+      "scoringHints": {
+        "indicators": ["if","then","because","therefore"],
+        "coherenceWeight": 0.6,
+        "evidenceWeight": 0.4,
+        "maxLen": 1200
+      },
+      "privacyFlag": false,
+      "calibrationFixtures": []
+    },
+
+    {
+      "id": "metric_systems_thinking",
+      "name": "Systems Thinking",
+      "description": "Ability to see interacting parts, feedback loops, and emergent behavior in scenarios.",
+      "unit": "points",
+      "maxScore": 30,
+      "defaultWeight": 0.10,
+      "phaseWeights": {
+        "phase_2_cognitive_mechanics": 1.0
+      },
+      "scoringHints": {
+        "keywords": ["feedback", "loop", "emergent", "stakeholder"],
+        "keywordWeight": 0.6,
+        "structureWeight": 0.4,
+        "maxLen": 1000
+      },
+      "privacyFlag": false
+    },
+
+    {
+      "id": "metric_practical_creativity",
+      "name": "Practical Creativity",
+      "description": "Novel, implementable ideas that balance creativity and constraints.",
+      "unit": "points",
+      "maxScore": 30,
+      "defaultWeight": 0.10,
+      "phaseWeights": {
+        "phase_2_cognitive_mechanics": 1.0
+      },
+      "scoringHints": {
+        "noveltyWeight": 0.6,
+        "feasibilityWeight": 0.4,
+        "maxLen": 800
+      },
+      "privacyFlag": false
+    },
+
+    {
+      "id": "metric_clarity_of_argument",
+      "name": "Clarity of Argument",
+      "description": "How clearly the response communicates a position or solution.",
+      "unit": "points",
+      "maxScore": 10,
+      "defaultWeight": 0.05,
+      "phaseWeights": {
+        "phase_2_cognitive_mechanics": 0.7,
+        "phase_6_philosophical_depth": 0.3
+      },
+      "scoringHints": {
+        "indicators": ["topic sentence", "support", "example"]
+      },
+      "privacyFlag": false
+    },
+
+    {
+      "id": "metric_emotional_identification",
+      "name": "Emotional Identification",
+      "description": "Accuracy and granularity of naming emotional states.",
+      "unit": "points",
+      "maxScore": 30,
+      "defaultWeight": 0.12,
+      "phaseWeights": {
+        "phase_3_emotive_intelligence": 1.0
+      },
+      "scoringHints": {
+        "keywords": ["anxious", "calm", "relieved", "embarrassed", "nostalgic"],
+        "keywordWeight": 0.6,
+        "exampleWeight": 0.4
+      },
+      "privacyFlag": true
+    },
+
+    {
+      "id": "metric_causal_insight",
+      "name": "Causal Insight",
+      "description": "Ability to explain why an emotional state arises and its antecedents.",
+      "unit": "points",
+      "maxScore": 40,
+      "defaultWeight": 0.15,
+      "phaseWeights": {
+        "phase_3_emotive_intelligence": 1.0,
+        "phase_4_meta_cognitive_insight": 0.3
+      },
+      "scoringHints": {
+        "indicators": ["because","due to","as a result","leads to"],
+        "structureWeight": 0.6,
+        "examplesWeight": 0.4
+      },
+      "privacyFlag": true
+    },
+
+    {
+      "id": "metric_self_compassion",
+      "name": "Self-Compassion",
+      "description": "Presence of kind, non-punitive language about one's own cognitive or emotional patterns.",
+      "unit": "points",
+      "maxScore": 30,
+      "defaultWeight": 0.10,
+      "phaseWeights": {
+        "phase_3_emotive_intelligence": 1.0
+      },
+      "scoringHints": {
+        "keywords": ["forgive","understand","gentle","compassion"],
+        "keywordWeight": 0.6,
+        "toneWeight": 0.4
+      },
+      "privacyFlag": true
+    },
+
+    {
+      "id": "metric_meta_awareness",
+      "name": "Meta-Awareness",
+      "description": "Degree to which the subject recognizes their own thinking processes.",
+      "unit": "points",
+      "maxScore": 40,
+      "defaultWeight": 0.15,
+      "phaseWeights": {
+        "phase_4_meta_cognitive_insight": 1.0
+      },
+      "scoringHints": {
+        "indicators": ["I notice", "My pattern", "I realize that", "I tend to"],
+        "keywordWeight": 0.6,
+        "consequenceWeight": 0.4
+      },
+      "privacyFlag": true
+    },
+
+    {
+      "id": "metric_process_diagnosis",
+      "name": "Process Diagnosis",
+      "description": "Clarity and accuracy in identifying the components of one’s own cognitive processes.",
+      "unit": "points",
+      "maxScore": 40,
+      "defaultWeight": 0.15,
+      "phaseWeights": {
+        "phase_4_meta_cognitive_insight": 1.0
+      },
+      "scoringHints": {
+        "indicators": ["trigger","habit","sequence","loop"],
+        "keywordWeight": 0.6,
+        "structureWeight": 0.4
+      },
+      "privacyFlag": true
+    },
+
+    {
+      "id": "metric_remedy_clarity",
+      "name": "Remedy Clarity",
+      "description": "The degree to which a proposed remedy is concrete, actionable, and targeted to the diagnosed process.",
+      "unit": "points",
+      "maxScore": 20,
+      "defaultWeight": 0.10,
+      "phaseWeights": {
+        "phase_4_meta_cognitive_insight": 1.0
+      },
+      "scoringHints": {
+        "indicators": ["step","practice","when I will","how I will"],
+        "feasibilityWeight": 0.6,
+        "specificityWeight": 0.4
+      },
+      "privacyFlag": false
+    },
+
+    {
+      "id": "metric_novelty",
+      "name": "Novelty",
+      "description": "Degree of originality and departure from common solutions or ideas.",
+      "unit": "points",
+      "maxScore": 40,
+      "defaultWeight": 0.15,
+      "phaseWeights": {
+        "phase_5_creative_intelligence": 1.0
+      },
+      "scoringHints": {
+        "noveltyIndicators": ["new","hybrid","unique","unusual"],
+        "semanticDistanceMethod": "placeholder_for_embedding_comparison",
+        "maxLen": 1200
+      },
+      "privacyFlag": false
+    },
+
+    {
+      "id": "metric_coherence",
+      "name": "Coherence",
+      "description": "Internal structural consistency across the creative response.",
+      "unit": "points",
+      "maxScore": 30,
+      "defaultWeight": 0.10,
+      "phaseWeights": {
+        "phase_5_creative_intelligence": 1.0,
+        "phase_6_philosophical_depth": 0.4
+      },
+      "scoringHints": {
+        "indicators": ["flows","connects","therefore","because"],
+        "structureWeight": 0.6,
+        "exampleWeight": 0.4
+      },
+      "privacyFlag": false
+    },
+
+    {
+      "id": "metric_integration",
+      "name": "Integration",
+      "description": "Successful cross-domain analogy and synthesis of disparate concepts.",
+      "unit": "points",
+      "maxScore": 30,
+      "defaultWeight": 0.10,
+      "phaseWeights": {
+        "phase_5_creative_intelligence": 1.0
+      },
+      "scoringHints": {
+        "indicators": ["analogous to","similar to","like","as if"],
+        "integrationWeight": 0.6,
+        "noveltyWeight": 0.4
+      },
+      "privacyFlag": false
+    },
+
+    {
+      "id": "metric_analogy_formation",
+      "name": "Analogy Formation",
+      "description": "Ability to produce strong, relevant analogies that clarify complex ideas.",
+      "unit": "points",
+      "maxScore": 10,
+      "defaultWeight": 0.05,
+      "phaseWeights": {
+        "phase_5_creative_intelligence": 0.8,
+        "phase_2_cognitive_mechanics": 0.2
+      },
+      "scoringHints": {
+        "indicators": ["is like","as if","similar to"]
+      },
+      "privacyFlag": false
+    },
+
+    {
+      "id": "metric_depth",
+      "name": "Depth",
+      "description": "Philosophical or conceptual depth measured by the ability to analyze multiple levels of an idea.",
+      "unit": "points",
+      "maxScore": 40,
+      "defaultWeight": 0.15,
+      "phaseWeights": {
+        "phase_6_philosophical_depth": 1.0
+      },
+      "scoringHints": {
+        "indicators": ["layer","underlying","root cause","implication"],
+        "depthWeight": 0.7,
+        "clarityWeight": 0.3
+      },
+      "privacyFlag": false
+    },
+
+    {
+      "id": "metric_logical_consistency",
+      "name": "Logical Consistency",
+      "description": "Absence of contradiction and robust internal logic across claims.",
+      "unit": "points",
+      "maxScore": 30,
+      "defaultWeight": 0.10,
+      "phaseWeights": {
+        "phase_6_philosophical_depth": 1.0
+      },
+      "scoringHints": {
+        "consistencyIndicators": ["contradiction","inconsistent","however"],
+        "coherenceWeight": 0.7,
+        "evidenceWeight": 0.3
+      },
+      "privacyFlag": false
+    },
+
+    {
+      "id": "metric_existential_clarity",
+      "name": "Existential Clarity",
+      "description": "Ability to express a clear stance about human potential, purpose, or existential hypotheses.",
+      "unit": "points",
+      "maxScore": 30,
+      "defaultWeight": 0.10,
+      "phaseWeights": {
+        "phase_6_philosophical_depth": 1.0
+      },
+      "scoringHints": {
+        "indicators": ["I believe","I propose","this implies"],
+        "clarityWeight": 0.6,
+        "depthWeight": 0.4
+      },
+      "privacyFlag": false
+    },
+
+    {
+      "id": "metric_ethical_consistency",
+      "name": "Ethical Consistency",
+      "description": "Alignment of proposed actions or beliefs with an internally coherent ethical stance.",
+      "unit": "points",
+      "maxScore": 20,
+      "defaultWeight": 0.05,
+      "phaseWeights": {
+        "phase_6_philosophical_depth": 0.8,
+        "phase_5_creative_intelligence": 0.2
+      },
+      "scoringHints": {
+        "indicators": ["should","ought","responsibility"],
+        "consistencyWeight": 0.7,
+        "applicationWeight": 0.3
+      },
+      "privacyFlag": false
+    },
+
+    {
+      "id": "metric_adaptability",
+      "name": "Adaptability",
+      "description": "How well the subject rebalances across domains; measured by variance and corrective moves.",
+      "unit": "points",
+      "maxScore": 100,
+      "defaultWeight": 0.10,
+      "phaseWeights": {
+        "phase_1_perceptual_awareness": 0.1,
+        "phase_2_cognitive_mechanics": 0.2,
+        "phase_3_emotive_intelligence": 0.2,
+        "phase_4_meta_cognitive_insight": 0.3,
+        "phase_5_creative_intelligence": 0.2
+      },
+      "scoringHints": {
+        "method": "variance_and_correction_speed",
+        "description": "Derive from metric variance across phases and the speed of corrective branching."
+      },
+      "privacyFlag": false
+    },
+
+    {
+      "id": "metric_reflective_coherence",
+      "name": "Reflective Coherence",
+      "description": "The coherence of reflection across time; how well the subject integrates earlier insights in later phases.",
+      "unit": "points",
+      "maxScore": 50,
+      "defaultWeight": 0.10,
+      "phaseWeights": {
+        "phase_4_meta_cognitive_insight": 0.6,
+        "phase_6_philosophical_depth": 0.4
+      },
+      "scoringHints": {
+        "method": "cross_phase_reference_count_and_quality"
+      },
+      "privacyFlag": false
+    }
+  ],
+
+  "prompts": [
+    {
+      "id": "prompt_p1_q1",
+      "phaseId": "phase_1_perceptual_awareness",
+      "mapsToMetrics": [
+        {"metricId": "metric_sensory_clarity", "contributionWeight": 0.6},
+        {"metricId": "metric_contextual_recognition", "contributionWeight": 0.4}
+      ],
+      "type": "free_text",
+      "weight": 1.0,
+      "timing": {"minExpectedSec": 20, "maxAllowedSec": 600},
+      "branching": {"onLow": "prompt_p1_q1_remedial", "onHigh": "prompt_p1_q1_advance", "default": "prompt_p1_q2"},
+      "notes": "Primary sensory prompt. Actual text stored in /prompts/phase_1_prompts.json"
+    },
+    {
+      "id": "prompt_p1_q2",
+      "phaseId": "phase_1_perceptual_awareness",
+      "mapsToMetrics": [
+        {"metricId": "metric_pattern_detection", "contributionWeight": 1.0}
+      ],
+      "type": "free_text",
+      "weight": 0.8,
+      "timing": {"minExpectedSec": 15, "maxAllowedSec": 400},
+      "branching": {"onLow": "prompt_p1_q2_remedial", "onHigh": "prompt_p1_q2_advance", "default": "prompt_p1_q3"},
+      "notes": "Pattern recognition prompt placeholder."
+    },
+    {
+      "id": "prompt_p1_q3",
+      "phaseId": "phase_1_perceptual_awareness",
+      "mapsToMetrics": [
+        {"metricId": "metric_cognitive_load_balance", "contributionWeight": 1.0}
+      ],
+      "type": "rating",
+      "weight": 0.5,
+      "timing": {"minExpectedSec": 5, "maxAllowedSec": 60},
+      "branching": {"default": "prompt_p2_q1"},
+      "notes": "Short rating to assess perceived difficulty."
+    },
+
+    {
+      "id": "prompt_p2_q1",
+      "phaseId": "phase_2_cognitive_mechanics",
+      "mapsToMetrics": [
+        {"metricId": "metric_logic", "contributionWeight": 0.6},
+        {"metricId": "metric_systems_thinking", "contributionWeight": 0.4}
+      ],
+      "type": "free_text",
+      "weight": 1.0,
+      "timing": {"minExpectedSec": 30, "maxAllowedSec": 1200},
+      "branching": {"onLow": "prompt_p2_q1_remedial", "onHigh": "prompt_p2_q1_advance", "default": "prompt_p2_q2"},
+      "notes": "Systems reasoning scenario; actual text in /prompts/phase_2_prompts.json"
+    },
+    {
+      "id": "prompt_p2_q2",
+      "phaseId": "phase_2_cognitive_mechanics",
+      "mapsToMetrics": [
+        {"metricId": "metric_practical_creativity", "contributionWeight": 1.0}
+      ],
+      "type": "free_text",
+      "weight": 0.9,
+      "timing": {"minExpectedSec": 20, "maxAllowedSec": 900},
+      "branching": {"default": "prompt_p3_q1"},
+      "notes": "Practical creativity challenge placeholder."
+    },
+
+    {
+      "id": "prompt_p3_q1",
+      "phaseId": "phase_3_emotive_intelligence",
+      "mapsToMetrics": [
+        {"metricId": "metric_emotional_identification", "contributionWeight": 0.6},
+        {"metricId": "metric_causal_insight", "contributionWeight": 0.4}
+      ],
+      "type": "free_text",
+      "weight": 1.0,
+      "timing": {"minExpectedSec": 20, "maxAllowedSec": 800},
+      "branching": {"onLow": "prompt_p3_q1_remedial", "onHigh": "prompt_p3_q1_advance", "default": "prompt_p3_q2"},
+      "notes": "Emotion identification and cause prompt."
+    },
+    {
+      "id": "prompt_p3_q2",
+      "phaseId": "phase_3_emotive_intelligence",
+      "mapsToMetrics": [
+        {"metricId": "metric_self_compassion", "contributionWeight": 1.0}
+      ],
+      "type": "free_text",
+      "weight": 0.7,
+      "timing": {"minExpectedSec": 10, "maxAllowedSec": 600},
+      "branching": {"default": "prompt_p4_q1"},
+      "notes": "Self-compassion exercise placeholder."
+    },
+
+    {
+      "id": "prompt_p4_q1",
+      "phaseId": "phase_4_meta_cognitive_insight",
+      "mapsToMetrics": [
+        {"metricId": "metric_meta_awareness", "contributionWeight": 0.6},
+        {"metricId": "metric_process_diagnosis", "contributionWeight": 0.4}
+      ],
+      "type": "free_text",
+      "weight": 1.0,
+      "timing": {"minExpectedSec": 30, "maxAllowedSec": 1200},
+      "branching": {"onLow": "prompt_p4_q1_remedial", "onHigh": "prompt_p4_q1_advance", "default": "prompt_p4_q2"},
+      "notes": "Meta-reflection diagnostic prompt."
+    },
+    {
+      "id": "prompt_p4_q2",
+      "phaseId": "phase_4_meta_cognitive_insight",
+      "mapsToMetrics": [
+        {"metricId": "metric_remedy_clarity", "contributionWeight": 1.0}
+      ],
+      "type": "free_text",
+      "weight": 0.8,
+      "timing": {"minExpectedSec": 20, "maxAllowedSec": 900},
+      "branching": {"default": "prompt_p5_q1"},
+      "notes": "Remedy clarity prompt placeholder."
+    },
+
+    {
+      "id": "prompt_p5_q1",
+      "phaseId": "phase_5_creative_intelligence",
+      "mapsToMetrics": [
+        {"metricId": "metric_novelty", "contributionWeight": 0.6},
+        {"metricId": "metric_integration", "contributionWeight": 0.4}
+      ],
+      "type": "free_text",
+      "weight": 1.0,
+      "timing": {"minExpectedSec": 30, "maxAllowedSec": 1500},
+      "branching": {"onLow": "prompt_p5_q1_remedial", "onHigh": "prompt_p5_q1_advance", "default": "prompt_p5_q2"},
+      "notes": "Invent a new intelligence measurement prompt placeholder."
+    },
+    {
+      "id": "prompt_p5_q2",
+      "phaseId": "phase_5_creative_intelligence",
+      "mapsToMetrics": [
+        {"metricId": "metric_coherence", "contributionWeight": 1.0}
+      ],
+      "type": "free_text",
+      "weight": 0.8,
+      "timing": {"minExpectedSec": 20, "maxAllowedSec": 1200},
+      "branching": {"default": "prompt_p6_q1"},
+      "notes": "Coherence check prompt."
+    },
+
+    {
+      "id": "prompt_p6_q1",
+      "phaseId": "phase_6_philosophical_depth",
+      "mapsToMetrics": [
+        {"metricId": "metric_depth", "contributionWeight": 0.5},
+        {"metricId": "metric_logical_consistency", "contributionWeight": 0.3},
+        {"metricId": "metric_existential_clarity", "contributionWeight": 0.2}
+      ],
+      "type": "free_text",
+      "weight": 1.0,
+      "timing": {"minExpectedSec": 30, "maxAllowedSec": 1800},
+      "branching": {"onLow": "prompt_p6_q1_remedial", "onHigh": "prompt_p6_q1_advance", "default": "prompt_p6_q2"},
+      "notes": "Philosophical synthesis prompt placeholder."
+    },
+    {
+      "id": "prompt_p6_q2",
+      "phaseId": "phase_6_philosophical_depth",
+      "mapsToMetrics": [
+        {"metricId": "metric_ethical_consistency", "contributionWeight": 1.0}
+      ],
+      "type": "free_text",
+      "weight": 0.8,
+      "timing": {"minExpectedSec": 20, "maxAllowedSec": 1200},
+      "branching": {"default": null},
+      "notes": "Applied ethics prompt placeholder."
+    }
+  ],
+
+  "scoring": {
+    "compositeFormula": "weighted_sum_normalized",
+    "perQuestionScoring": {
+      "method": "hybrid_keyword_length_coherence",
+      "description": "Combine keyword match percentage, answer length normalized, and coherence heuristics. For sensitive metrics, weight tone and compassion indicators."
+    },
+    "metricNormalization": {
+      "target": 1.0,
+      "method": "divide_by_metric_maxScore_then_clamp_0_1"
+    },
+    "tierBoundaries": {
+      "Explorer": 0.5,
+      "Architect": 0.75,
+      "Visionary": 0.95
+    },
+    "outlierDetectionRules": {
+      "method": "zscore",
+      "zThreshold": 3.0
+    },
+    "auditTrace": true,
+    "adaptationRules": [
+      {
+        "id": "adaptation_1",
+        "trigger": "metric_normalized_below_threshold",
+        "params": {"metricId": "metric_meta_awareness", "threshold": 0.35},
+        "action": {"increaseRemedialPrompts": 1, "decreaseDifficulty": 0.1}
+      },
+      {
+        "id": "adaptation_2",
+        "trigger": "rapid_high_scores",
+        "params": {"compositeAbove": 0.85},
+        "action": {"injectChallengePrompt": true}
+      }
+    ]
+  },
+
+  "branching": {
+    "node_examples": [
+      {
+        "id": "b_node_1",
+        "description": "If last question raw score < low threshold then remedial prompt",
+        "condition": {"lt": [{"var": "lastScore"}, {"var": "config.questionThresholds.low"}]},
+        "action": {"gotoPrompt": {"var": "currentPrompt.branching.onLow"}}
+      },
+      {
+        "id": "b_node_2",
+        "description": "If last question raw score > high threshold then advanced prompt",
+        "condition": {"gt": [{"var": "lastScore"}, {"var": "config.questionThresholds.high"}]},
+        "action": {"gotoPrompt": {"var": "currentPrompt.branching.onHigh"}}
+      }
+    ]
+  },
+
+  "archetypes": [
+    {
+      "id": "arch_reflective_architect",
+      "label": "Reflective Architect",
+      "description": "High Meta-Awareness combined with strong Logic and Process Diagnosis.",
+      "ruleExpression": {
+        "and": [
+          {"gte": [{"var": "metric_meta_awareness.normalized"}, 0.7]},
+          {"gte": [{"var": "metric_logic.normalized"}, 0.6]}
+        ]
+      },
+      "recommendedExercises": [
+        "structured_problem_deconstruction",
+        "mentor_mode_challenge"
+      ],
+      "practitionerNotes": "Likely to benefit from complex systems projects and mentoring roles."
+    },
+    {
+      "id": "arch_empathic_inventor",
+      "label": "Empathic Inventor",
+      "description": "High Creativity and strong Emotional Identification; novel ideas grounded in emotional insight.",
+      "ruleExpression": {
+        "and": [
+          {"gte": [{"var": "metric_novelty.normalized"}, 0.65]},
+          {"gte": [{"var": "metric_emotional_identification.normalized"}, 0.6]}
+        ]
+      },
+      "recommendedExercises": [
+        "cross_domain_integration",
+        "design_for_empathy"
+      ],
+      "practitionerNotes": "Encourage practical prototyping to test ideas with emotional contexts."
+    },
+    {
+      "id": "arch_visionary_synthesist",
+      "label": "Visionary Synthesist",
+      "description": "High Logic, Philosophy, and Creativity — integrates abstract reasoning with novel synthesis.",
+      "ruleExpression": {
+        "and": [
+          {"gte": [{"var": "metric_logic.normalized"}, 0.7]},
+          {"gte": [{"var": "metric_depth.normalized"}, 0.7]},
+          {"gte": [{"var": "metric_novelty.normalized"}, 0.6]}
+        ]
+      },
+      "recommendedExercises": [
+        "systems_design_challenge",
+        "public_synthesis_essay"
+      ],
+      "practitionerNotes": "May excel in thought leadership roles; ensure concreteness exercises to maintain applied translation."
+    },
+    {
+      "id": "arch_grounded_operator",
+      "label": "Grounded Operator",
+      "description": "High Logic with lower Meta-Awareness — strong execution, may rely on rule-based procedures.",
+      "ruleExpression": {
+        "and": [
+          {"gte": [{"var": "metric_logic.normalized"}, 0.7]},
+          {"lte": [{"var": "metric_meta_awareness.normalized"}, 0.4]}
+        ]
+      },
+      "recommendedExercises": [
+        "reflective_journal",
+        "scenario_analysis_with_prompted_reflection"
+      ],
+      "practitionerNotes": "Focus on integrating reflective exercises to improve meta-flexibility."
+    },
+    {
+      "id": "arch_dreaming_idealist",
+      "label": "Dreaming Idealist",
+      "description": "High Emotion and Creativity with lower Logic — imaginative, values-driven, may need structure.",
+      "ruleExpression": {
+        "and": [
+          {"gte": [{"var": "metric_emotional_identification.normalized"}, 0.65]},
+          {"gte": [{"var": "metric_novelty.normalized"}, 0.6]},
+          {"lte": [{"var": "metric_logic.normalized"}, 0.45]}
+        ]
+      },
+      "recommendedExercises": [
+        "structured_problem_solving",
+        "logic_playlists"
+      ],
+      "practitionerNotes": "Provide scaffolding for translating ideas into implementable plans."
+    },
+    {
+      "id": "arch_balanced_strategist",
+      "label": "Balanced Strategist",
+      "description": "Even scores across metrics; adaptable and steady.",
+      "ruleExpression": {
+        "and": [
+          {"gte": [{"var": "metric_reflective_coherence.normalized"}, 0.5]},
+          {"lte": [{"var": "metric_adaptability.normalized"}, 0.9]}
+        ]
+      },
+      "recommendedExercises": [
+        "leadership_rotation",
+        "peer_teaching"
+      ],
+      "practitionerNotes": "Strong candidate for integrative leadership roles."
+    }
+  ],
+
+  "tiers": {
+    "definitions": [
+      {
+        "id": "Explorer",
+        "label": "Explorer",
+        "rangeNormalized": {"min": 0.0, "max": 0.5},
+        "recommendedDurationMinutes": [15, 25],
+        "description": "Introductory engagement with core MCIF tasks; expects shorter sessions."
+      },
+      {
+        "id": "Architect",
+        "label": "Architect",
+        "rangeNormalized": {"min": 0.5, "max": 0.75},
+        "recommendedDurationMinutes": [30, 45],
+        "description": "Intermediate depth; expects multi-phase engagement."
+      },
+      {
+        "id": "Visionary",
+        "label": "Visionary",
+        "rangeNormalized": {"min": 0.75, "max": 1.0},
+        "recommendedDurationMinutes": [60, 90],
+        "description": "Deep engagement across phases; comprehensive reflection and synthesis."
+      }
+    ]
+  },
+
+  "ledger": {
+    "enabled": true,
+    "mode": "local_encrypted",
+    "format": "jsonld",
+    "eventsToRecord": [
+      "session_start",
+      "consent_given",
+      "prompt_presented",
+      "response_submitted",
+      "score_computed",
+      "branch_taken",
+      "phase_completed",
+      "composite_computed",
+      "archetype_mapped",
+      "session_exported"
+    ],
+    "eventSchema": {
+      "session_start": {"fields": ["sessionId", "timestamp", "schemaVersion"]},
+      "prompt_presented": {"fields": ["sessionId", "promptId", "timestamp"]},
+      "response_submitted": {"fields": ["sessionId", "promptId", "responseHash", "rawScore", "weightedContribution", "timestamp"]},
+      "score_computed": {"fields": ["sessionId", "metricId", "raw", "normalized", "timestamp"]},
+      "branch_taken": {"fields": ["sessionId", "fromPrompt", "toPrompt", "conditionEval", "timestamp"]},
+      "composite_computed": {"fields": ["sessionId", "composite", "tier", "timestamp"]},
+      "archetype_mapped": {"fields": ["sessionId", "archetypeId", "scoreVectorSnapshot", "timestamp"]}
+    },
+    "encryption": {
+      "algorithm": "AES-256-GCM",
+      "keyStorage": "local_key_store",
+      "integrity": "sha256"
+    },
+    "exportable": true,
+    "retentionDays": 30
+  },
+
+  "adapters": {
+    "external_synthesis": {
+      "id": "adapter_hf_space_1",
+      "name": "HuggingFaceSpacePlaceholder",
+      "enabled": false,
+      "type": "huggingface_space",
+      "endpoint": "",
+      "auth": {
+        "method": "none",
+        "notes": "If enabled, set endpoint and auth.secretKey in environment."
+      },
+      "rateLimit": {"requestsPerMinute": 60},
+      "fallbackBehavior": "no_external_call",
+      "inputContract": {
+        "sessionSnapshot": "object",
+        "promptText": "string",
+        "recentMetrics": "object"
+      },
+      "outputContract": {
+        "synthesisText": "string",
+        "confidence": "number",
+        "explainabilityTrace": "object"
+      }
+    },
+    "local_js_model": {
+      "id": "adapter_local_js",
+      "name": "LocalJSModel",
+      "enabled": false,
+      "type": "local_js",
+      "notes": "Use with transformers.js or ONNX runtime in-browser."
+    },
+    "grok_api": {
+      "id": "adapter_grok",
+      "name": "Grok API (xAI)",
+      "enabled": false,
+      "type": "grok_api",
+      "endpoint": "",
+      "auth": {"method": "api_key"},
+      "notes": "If enabled, ensure billing plan; prefer conditional use (challenge prompts only)."
+    }
+  },
+
+  "uiHints": {
+    "progressStyle": "phaseSegments",
+    "phaseColorMap": {
+      "phase_1_perceptual_awareness": "#6AA6FF",
+      "phase_2_cognitive_mechanics": "#7FE3A3",
+      "phase_3_emotive_intelligence": "#FFD27A",
+      "phase_4_meta_cognitive_insight": "#C28EFF",
+      "phase_5_creative_intelligence": "#FF9FB3",
+      "phase_6_philosophical_depth": "#8DD3FF"
+    },
+    "fontStack": ["Inter", "system-ui", "Arial", "sans-serif"],
+    "dyslexiaFontEnabled": true,
+    "focusTimeouts": {
+      "defaultSec": 0,
+      "adhdModeSec": 8
+    },
+    "voiceMode": {
+      "ttsEnabled": false,
+      "pauseBetweenPromptsMs": 600
+    },
+    "accessibility": {
+      "aria": true,
+      "contrastRatioMin": 4.5,
+      "keyboardNavigation": true
+    }
+  },
+
+  "fixtures": {
+    "calibrationSets": [
+      {
+        "id": "calib_001_basic",
+        "name": "Basic calibration set",
+        "description": "Short sample session with expected normalized metrics for unit tests.",
+        "inputs": [
+          {"promptId": "prompt_p1_q1", "response": "Short sample sensory description emphasizing texture and color."},
+          {"promptId": "prompt_p2_q1", "response": "Proposes a simple system fix: assign roles, create a feedback loop, offer incentives."},
+          {"promptId": "prompt_p3_q1", "response": "Feels anxious because of deadlines; names feelings and causes."},
+          {"promptId": "prompt_p4_q1", "response": "Recognizes avoidance pattern linked to perfectionism; suggests weekly micro-goals."},
+          {"promptId": "prompt_p5_q1", "response": "Invents a scoring form combining rhythm and reflection, uses cross-domain example."},
+          {"promptId": "prompt_p6_q1", "response": "Argues that human potential expands through reflective practice; links to practice."}
+        ],
+        "expectedMetricsNormalized": {
+          "metric_sensory_clarity": 0.6,
+          "metric_logic": 0.55,
+          "metric_emotional_identification": 0.6,
+          "metric_meta_awareness": 0.5,
+          "metric_novelty": 0.5,
+          "metric_depth": 0.5
+        },
+        "expectedArchetype": "arch_balanced_strategist"
+      }
+    ],
+    "validationRules": [
+      {
+        "id": "vr_001",
+        "description": "All metric defaultWeight sum must be <= 1.0",
+        "rule": "sum(metrics[*].defaultWeight) <= 1.0"
+      },
+      {
+        "id": "vr_002",
+        "description": "Every phase must reference at least 1 primary metric",
+        "rule": "forall(phases[*].primaryMetrics.length >= 1)"
+      }
+    ]
+  },
+
+  "telemetry": {
+    "enabled": false,
+    "events": [
+      "session_start",
+      "phase_enter",
+      "phase_exit",
+      "prompt_submit",
+      "session_end"
+    ],
+    "anonymization": {
+      "method": "hash_salt",
+      "saltId": "tele_salt_v1"
+    },
+    "exportEndpoints": [],
+    "gdpr": {
+      "optIn": true,
+      "dataSubjectRights": ["export", "delete"]
+    }
+  },
+
+  "evolution": {
+    "schemaHistory": [
+      {
+        "version": "7.1.0",
+        "date": "2025-10-30T12:00:00Z",
+        "notes": "Initial release"
+      }
+    ],
+    "calibrationBatches": [],
+    "approvalWorkflow": {
+      "weightChangeRequires": ["owner_signoff", "ethics_council_review"],
+      "schemaChangeRequires": ["owner_signoff", "dev_lead"]
+    },
+    "devNotes": [
+      "Schema is the canonical source-of-truth. Engine must not hardcode metric weights.",
+      "Adapters disabled by default to protect privacy and costs."
+    ]
+  },
+
+  "dev": {
+    "entryPoint": "engine/logic.js",
+    "sampleLoadScript": "const schema = await fetch('/schema/mcif-schema.json').then(r=>r.json());",
+    "testCommands": {
+      "node_validate_schema": "node tools/validate-schema.js schema/mcif-schema.json",
+      "run_unit_tests": "npm run test"
+    },
+    "lintRules": {
+      "json": "prettier --write",
+      "js": "eslint --fix"
+    }
+  }
+}
