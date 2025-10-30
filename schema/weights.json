@@ -1,1 +1,89 @@
-{ "note": "Placeholder for weights" } 
+{
+  "version": "7.1",
+  "framework": "MCIF Meta-Cognitive Intelligence Test",
+  "description": "Weight and coefficient matrix for all six phases of the MCIF 7.1 model, including dynamic tier balancing, archetype modifiers, and adaptive scaling.",
+
+  "meta": {
+    "author": "Hayden Andrew Carr",
+    "project": "Meta-Cognitive Intelligence Project",
+    "schema_dependency": "mcif-schema.json",
+    "last_updated": "2025-10-30"
+  },
+
+  "phase_weights": {
+    "Phase I - Perceptual Awareness": 0.15,
+    "Phase II - Pattern Recognition": 0.20,
+    "Phase III - Cognitive Reflection": 0.20,
+    "Phase IV - Emotional Resonance": 0.15,
+    "Phase V - Integrative Reasoning": 0.20,
+    "Phase VI - Meta-Synthesis": 0.10
+  },
+
+  "tier_multipliers": {
+    "Novice": 0.75,
+    "Intermediate": 1.0,
+    "Advanced": 1.25,
+    "Expert": 1.5,
+    "Savant": 1.75
+  },
+
+  "archetype_modifiers": {
+    "Theorist": {
+      "reflection_bias": 1.2,
+      "emotional_resonance": 0.8,
+      "integration_speed": 1.1
+    },
+    "Empath": {
+      "reflection_bias": 0.9,
+      "emotional_resonance": 1.3,
+      "integration_speed": 1.0
+    },
+    "Strategist": {
+      "reflection_bias": 1.1,
+      "emotional_resonance": 1.0,
+      "integration_speed": 1.2
+    },
+    "Visionary": {
+      "reflection_bias": 1.0,
+      "emotional_resonance": 1.2,
+      "integration_speed": 1.3
+    },
+    "Harmonizer": {
+      "reflection_bias": 1.0,
+      "emotional_resonance": 1.4,
+      "integration_speed": 0.9
+    }
+  },
+
+  "adaptive_scaling": {
+    "response_time_factor": 0.5,
+    "confidence_factor": 0.75,
+    "emotional_tone_factor": 0.65,
+    "linguistic_depth_factor": 0.8
+  },
+
+  "bias_reflection": {
+    "confirmation_bias_weight": 0.4,
+    "anchoring_bias_weight": 0.3,
+    "availability_bias_weight": 0.3
+  },
+
+  "score_distribution": {
+    "max_score": 100,
+    "thresholds": {
+      "meta_reflective": 90,
+      "cognitive_integrator": 80,
+      "adaptive_analyst": 70,
+      "emerging_reflector": 60,
+      "developing_thinker": 50,
+      "incomplete_data": 0
+    }
+  },
+
+  "ethical_parameters": {
+    "data_privacy": true,
+    "anonymize_responses": true,
+    "audit_log_enabled": true,
+    "explainability_required": true
+  }
+}
