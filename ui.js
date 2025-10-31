@@ -1,169 +1,127 @@
-/* ================================================================
-   MCIF Meta-Cognition Test v1
-   UI Controller — Enterprise Edition
-   Developed by Hayden Andrew Carr | Meta-Cognitive Intelligence Project
-   ================================================================= */
+/* ============================================================
+   ui.js – Meta Cognition Test UI Module (Enterprise-Grade)
+   Developed for MCIF Framework | Hayden Andrew Carr
+   ============================================================ */
 
-/**
- * UI Manager handles all dynamic DOM updates, navigation states,
- * and user feedback animations during the MCIF test lifecycle.
- */
+/* ---------- Core Fade and Transition Utilities ---------- */
+export function fadeIn(element, duration = 400) {
+  if (!element) return;
+  element.style.opacity = 0;
+  element.style.display = "block";
 
-const UI = (() => {
-  const elements = {
-    intro: document.getElementById("intro"),
-    test: document.getElementById("test"),
-    results: document.getElementById("results"),
-    questionContainer: document.getElementById("questionContainer"),
-    startBtn: document.getElementById("startBtn"),
-    nextBtn: document.getElementById("nextBtn"),
-    prevBtn: document.getElementById("prevBtn"),
-    submitBtn: document.getElementById("submitBtn"),
-    restartBtn: document.getElementById("restartBtn"),
-    resultSummary: document.getElementById("resultSummary"),
-  };
+  let last = +new Date();
+  const tick = () => {
+    element.style.opacity = +element.style.opacity + (new Date() - last) / duration;
+    last = +new Date();
 
-  let currentQuestionIndex = 0;
-  let responses = [];
-
-  /* --------------------- CORE UI TRANSITIONS --------------------- */
-
-  function showSection(section) {
-    Object.values(elements).forEach((el) => {
-      if (el && el.tagName === "SECTION") el.classList.add("hidden");
-    });
-    section.classList.remove("hidden");
-    section.scrollIntoView({ behavior: "smooth" });
-  }
-
-  function fadeIn(el) {
-    el.style.opacity = 0;
-    el.style.transition = "opacity 0.3s ease-in";
-    requestAnimationFrame(() => {
-      el.style.opacity = 1;
-    });
-  }
-
-  /* --------------------- QUESTION RENDERING --------------------- */
-
-  function renderQuestion(questionObj, index, total) {
-    if (!questionObj) return;
-
-    const { title, text, options } = questionObj;
-
-    elements.questionContainer.innerHTML = `
-      <div class="question-title">${index + 1}. ${title}</div>
-      <div class="question-text">${text}</div>
-      <div class="options-container">
-        ${options
-          .map(
-            (opt, i) => `
-          <label class="option-label">
-            <input type="radio" name="option" class="option-input" value="${i}" ${
-              responses[index] === i ? "checked" : ""
-            }>
-            <span class="option-text">${opt}</span>
-          </label>
-        `
-          )
-          .join("")}
-      </div>
-      <p class="progress-indicator">${index + 1} / ${total}</p>
-    `;
-    fadeIn(elements.questionContainer);
-  }
-
-  /* --------------------- NAVIGATION HANDLERS --------------------- */
-
-  function handleStart() {
-    currentQuestionIndex = 0;
-    responses = [];
-    showSection(elements.test);
-    MCIF.loadQuestion(currentQuestionIndex);
-  }
-
-  function handleNext() {
-    saveResponse();
-    if (currentQuestionIndex < MCIF.totalQuestions() - 1) {
-      currentQuestionIndex++;
-      MCIF.loadQuestion(currentQuestionIndex);
+    if (+element.style.opacity < 1) {
+      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
     } else {
-      elements.submitBtn.classList.remove("hidden");
-      elements.nextBtn.classList.add("hidden");
+      element.style.opacity = 1;
     }
-  }
-
-  function handlePrev() {
-    saveResponse();
-    if (currentQuestionIndex > 0) {
-      currentQuestionIndex--;
-      MCIF.loadQuestion(currentQuestionIndex);
-    }
-  }
-
-  function handleSubmit() {
-    saveResponse();
-    const results = MCIF.analyze(responses);
-    renderResults(results);
-    showSection(elements.results);
-  }
-
-  function handleRestart() {
-    responses = [];
-    showSection(elements.intro);
-  }
-
-  /* --------------------- STATE PERSISTENCE --------------------- */
-
-  function saveResponse() {
-    const selected = document.querySelector('input[name="option"]:checked');
-    if (selected) {
-      responses[currentQuestionIndex] = parseInt(selected.value);
-    }
-  }
-
-  /* --------------------- RESULTS RENDERING --------------------- */
-
-  function renderResults(results) {
-    if (!results || typeof results !== "object") return;
-
-    elements.resultSummary.innerHTML = `
-      ${Object.entries(results)
-        .map(
-          ([phase, score]) => `
-          <div class="result-item">
-            <span class="result-title">${phase}</span>
-            <span class="result-score">${score.toFixed(2)}</span>
-          </div>
-        `
-        )
-        .join("")}
-    `;
-    fadeIn(elements.resultSummary);
-  }
-
-  /* --------------------- EVENT LISTENERS --------------------- */
-
-  function bindEvents() {
-    elements.startBtn?.addEventListener("click", handleStart);
-    elements.nextBtn?.addEventListener("click", handleNext);
-    elements.prevBtn?.addEventListener("click", handlePrev);
-    elements.submitBtn?.addEventListener("click", handleSubmit);
-    elements.restartBtn?.addEventListener("click", handleRestart);
-  }
-
-  /* --------------------- PUBLIC METHODS --------------------- */
-
-  return {
-    init: () => {
-      bindEvents();
-      showSection(elements.intro);
-    },
-    renderQuestion,
   };
-})();
+  tick();
+}
 
-/* Initialize once DOM is ready */
-document.addEventListener("DOMContentLoaded", () => {
-  if (UI && typeof UI.init === "function") UI.init();
-});
+export function fadeOut(element, duration = 400) {
+  if (!element) return;
+  element.style.opacity = 1;
+
+  let last = +new Date();
+  const tick = () => {
+    element.style.opacity = +element.style.opacity - (new Date() - last) / duration;
+    last = +new Date();
+
+    if (+element.style.opacity > 0) {
+      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+    } else {
+      element.style.opacity = 0;
+      element.style.display = "none";
+    }
+  };
+  tick();
+}
+
+/* ---------- Progress and Message Display ---------- */
+export function updateProgress(current, total) {
+  const progressEl = document.getElementById("progress");
+  if (progressEl) {
+    progressEl.textContent = `Question ${current} of ${total}`;
+  }
+}
+
+export function showMessage(message, type = "info") {
+  const promptEl = document.getElementById("prompt");
+  if (!promptEl) return;
+
+  promptEl.textContent = message;
+  promptEl.className = ""; // reset classes
+
+  switch (type) {
+    case "success":
+      promptEl.classList.add("message-success");
+      break;
+    case "error":
+      promptEl.classList.add("message-error");
+      break;
+    default:
+      promptEl.classList.add("message-info");
+  }
+}
+
+/* ---------- Button & Input Feedback ---------- */
+export function setButtonLoading(button, state = true) {
+  if (!button) return;
+  if (state) {
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner"></span> Processing...';
+  } else {
+    button.disabled = false;
+    button.innerHTML = "Next";
+  }
+}
+
+export function shakeElement(element) {
+  if (!element) return;
+  element.classList.add("shake");
+  setTimeout(() => element.classList.remove("shake"), 600);
+}
+
+/* ---------- Initialization ---------- */
+export function initUI() {
+  console.log("%cUI Module initialized successfully", "color:#6cf;font-weight:bold;");
+}
+
+/* ---------- Spinner Styling Injection ---------- */
+(function injectSpinnerStyles() {
+  const style = document.createElement("style");
+  style.textContent = `
+    .spinner {
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #00bcd4;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      animation: spin 0.6s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .shake {
+      animation: shakeAnimation 0.5s;
+    }
+    @keyframes shakeAnimation {
+      10%, 90% { transform: translateX(-2px); }
+      20%, 80% { transform: translateX(4px); }
+      30%, 50%, 70% { transform: translateX(-8px); }
+      40%, 60% { transform: translateX(8px); }
+    }
+    .message-success { color: #4CAF50; }
+    .message-error { color: #FF5252; }
+    .message-info { color: #E0E0E0; }
+  `;
+  document.head.appendChild(style);
+})();
