@@ -1,0 +1,95 @@
+{
+  "meta": { "source": "MCIF 7.1 White Page", "version": "7.1" },
+  "prompts": [
+    {
+      "id": "p_perception_001",
+      "type": "text",
+      "text": "Describe an everyday object as if perceived for the first time.",
+      "mapsToMetrics": [
+        { "metricId": "perceptual_detail", "contributionWeight": 0.6 },
+        { "metricId": "sensory_emotion_link", "contributionWeight": 0.25 },
+        { "metricId": "concept_depth", "contributionWeight": 0.15 }
+      ],
+      "scoringHints": {
+        "keywords": [],
+        "keywordWeight": 0.2,
+        "notes": "Score for sensory richness, linking to feelings/concepts, and deeper conceptual framing."
+      }
+    },
+    {
+      "id": "p_cognitive_001",
+      "type": "text",
+      "text": "Design a sustainable fix for a team missing deadlines.",
+      "mapsToMetrics": [
+        { "metricId": "logic", "contributionWeight": 0.5 },
+        { "metricId": "systems_thinking", "contributionWeight": 0.3 },
+        { "metricId": "practical_creativity", "contributionWeight": 0.2 }
+      ],
+      "scoringHints": {
+        "keywords": ["process", "bottleneck", "feedback", "automation"],
+        "keywordWeight": 0.35,
+        "notes": "Prioritize causal clarity and sustainable systemic steps."
+      }
+    },
+    {
+      "id": "p_emotion_001",
+      "type": "text",
+      "text": "Explain why scrolling your phone eases pre-speech anxiety.",
+      "mapsToMetrics": [
+        { "metricId": "emotional_identification", "contributionWeight": 0.35 },
+        { "metricId": "causal_insight", "contributionWeight": 0.45 },
+        { "metricId": "self_compassion", "contributionWeight": 0.2 }
+      ],
+      "scoringHints": {
+        "keywords": ["anxiety", "soothe", "distraction", "rumination"],
+        "keywordWeight": 0.25,
+        "notes": "Look for naming of emotions and causal models linking behavior to relief."
+      }
+    },
+    {
+      "id": "p_meta_001",
+      "type": "text",
+      "text": "You understand your patterns but rarely act; what blocks you?",
+      "mapsToMetrics": [
+        { "metricId": "meta_awareness", "contributionWeight": 0.45 },
+        { "metricId": "process_diagnosis", "contributionWeight": 0.45 },
+        { "metricId": "remedy_clarity", "contributionWeight": 0.1 }
+      ],
+      "scoringHints": {
+        "keywords": ["habit", "trigger", "inertia", "threshold"],
+        "keywordWeight": 0.3,
+        "notes": "Value explicit process mapping and concrete, actionable remedies."
+      }
+    },
+    {
+      "id": "p_creative_001",
+      "type": "text",
+      "text": "Invent a new form of intelligence measurement superior to IQ.",
+      "mapsToMetrics": [
+        { "metricId": "novelty", "contributionWeight": 0.6 },
+        { "metricId": "coherence", "contributionWeight": 0.25 },
+        { "metricId": "integration", "contributionWeight": 0.15 }
+      ],
+      "scoringHints": {
+        "keywords": ["novel", "integration", "multi-dimensional", "adaptive"],
+        "keywordWeight": 0.25,
+        "notes": "Novelty is primary; coherence and integration validate applicability."
+      }
+    },
+    {
+      "id": "p_philosophy_001",
+      "type": "text",
+      "text": "Is human potential fixed or ever-expanding?",
+      "mapsToMetrics": [
+        { "metricId": "depth", "contributionWeight": 0.5 },
+        { "metricId": "logical_consistency", "contributionWeight": 0.3 },
+        { "metricId": "existential_clarity", "contributionWeight": 0.2 }
+      ],
+      "scoringHints": {
+        "keywords": ["potential", "growth", "determinism", "plasticity"],
+        "keywordWeight": 0.2,
+        "notes": "Assess abstraction, ethical framing, and logical consistency."
+      }
+    }
+  ]
+}
