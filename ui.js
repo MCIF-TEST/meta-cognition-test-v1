@@ -1,98 +1,169 @@
-// =============================================
-// MCIF Meta-Cognition Test v1
-// User Interface Rendering & Display Logic
-// =============================================
+/* ================================================================
+   MCIF Meta-Cognition Test v1
+   UI Controller — Enterprise Edition
+   Developed by Hayden Andrew Carr | Meta-Cognitive Intelligence Project
+   ================================================================= */
 
-// Safely render a question on the page
-function renderQuestion(question, index) {
-  const container = document.getElementById('questionContainer');
-  if (!container) {
-    console.error('Question container not found in DOM');
-    return;
+/**
+ * UI Manager handles all dynamic DOM updates, navigation states,
+ * and user feedback animations during the MCIF test lifecycle.
+ */
+
+const UI = (() => {
+  const elements = {
+    intro: document.getElementById("intro"),
+    test: document.getElementById("test"),
+    results: document.getElementById("results"),
+    questionContainer: document.getElementById("questionContainer"),
+    startBtn: document.getElementById("startBtn"),
+    nextBtn: document.getElementById("nextBtn"),
+    prevBtn: document.getElementById("prevBtn"),
+    submitBtn: document.getElementById("submitBtn"),
+    restartBtn: document.getElementById("restartBtn"),
+    resultSummary: document.getElementById("resultSummary"),
+  };
+
+  let currentQuestionIndex = 0;
+  let responses = [];
+
+  /* --------------------- CORE UI TRANSITIONS --------------------- */
+
+  function showSection(section) {
+    Object.values(elements).forEach((el) => {
+      if (el && el.tagName === "SECTION") el.classList.add("hidden");
+    });
+    section.classList.remove("hidden");
+    section.scrollIntoView({ behavior: "smooth" });
   }
 
-  // Accessibility: reset focus, readable numbering
-  container.innerHTML = `
-    <div class="question-card" tabindex="0" aria-label="Question ${index + 1}">
-      <h2 class="question-title">Question ${index + 1}</h2>
-      <p class="question-text">${escapeHTML(question.text)}</p>
+  function fadeIn(el) {
+    el.style.opacity = 0;
+    el.style.transition = "opacity 0.3s ease-in";
+    requestAnimationFrame(() => {
+      el.style.opacity = 1;
+    });
+  }
+
+  /* --------------------- QUESTION RENDERING --------------------- */
+
+  function renderQuestion(questionObj, index, total) {
+    if (!questionObj) return;
+
+    const { title, text, options } = questionObj;
+
+    elements.questionContainer.innerHTML = `
+      <div class="question-title">${index + 1}. ${title}</div>
+      <div class="question-text">${text}</div>
       <div class="options-container">
-        ${question.options
+        ${options
           .map(
             (opt, i) => `
-              <label class="option-label" for="option-${index}-${i}">
-                <input
-                  type="radio"
-                  name="option"
-                  id="option-${index}-${i}"
-                  value="${escapeHTML(opt)}"
-                  class="option-input"
-                  aria-describedby="option-desc-${index}-${i}"
-                />
-                <span id="option-desc-${index}-${i}" class="option-text">${escapeHTML(opt)}</span>
-              </label>
-            `
+          <label class="option-label">
+            <input type="radio" name="option" class="option-input" value="${i}" ${
+              responses[index] === i ? "checked" : ""
+            }>
+            <span class="option-text">${opt}</span>
+          </label>
+        `
           )
-          .join('')}
+          .join("")}
       </div>
-    </div>
-  `;
-
-  // Move focus to question for smooth accessibility flow
-  const firstInput = container.querySelector('input[name="option"]');
-  if (firstInput) firstInput.focus();
-}
-
-// Show results after analysis
-function showResults(results) {
-  const container = document.getElementById('results');
-  if (!container) {
-    console.error('Results container not found');
-    return;
+      <p class="progress-indicator">${index + 1} / ${total}</p>
+    `;
+    fadeIn(elements.questionContainer);
   }
 
-  container.innerHTML = `
-    <div class="results-card" aria-live="polite">
-      <h2>Your Results</h2>
-      <p><strong>Cognitive Profile:</strong> ${escapeHTML(results.profile)}</p>
-      <p><strong>Dominant Archetype:</strong> ${escapeHTML(results.archetype)}</p>
-      <p><strong>Score:</strong> ${escapeHTML(results.score.toString())}</p>
+  /* --------------------- NAVIGATION HANDLERS --------------------- */
 
-      <div class="results-summary">
-        ${results.details
-          .map(
-            (detail) => `
-              <div class="result-item">
-                <span class="result-title">${escapeHTML(detail.dimension)}</span>
-                <span class="result-score">${escapeHTML(detail.value.toString())}</span>
-              </div>
-            `
-          )
-          .join('')}
-      </div>
+  function handleStart() {
+    currentQuestionIndex = 0;
+    responses = [];
+    showSection(elements.test);
+    MCIF.loadQuestion(currentQuestionIndex);
+  }
 
-      <button id="restartBtn" class="btn btn-primary">Restart Test</button>
-    </div>
-  `;
+  function handleNext() {
+    saveResponse();
+    if (currentQuestionIndex < MCIF.totalQuestions() - 1) {
+      currentQuestionIndex++;
+      MCIF.loadQuestion(currentQuestionIndex);
+    } else {
+      elements.submitBtn.classList.remove("hidden");
+      elements.nextBtn.classList.add("hidden");
+    }
+  }
 
-  document.getElementById('results').classList.remove('hidden');
-  document.getElementById('test').classList.add('hidden');
-}
+  function handlePrev() {
+    saveResponse();
+    if (currentQuestionIndex > 0) {
+      currentQuestionIndex--;
+      MCIF.loadQuestion(currentQuestionIndex);
+    }
+  }
 
-// Utility: Escape potentially unsafe HTML
-function escapeHTML(str) {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
+  function handleSubmit() {
+    saveResponse();
+    const results = MCIF.analyze(responses);
+    renderResults(results);
+    showSection(elements.results);
+  }
 
-// Optional: Smooth scroll and visibility helpers
-function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+  function handleRestart() {
+    responses = [];
+    showSection(elements.intro);
+  }
 
-// Exported functions for app.js
-export { renderQuestion, showResults, scrollToTop };
+  /* --------------------- STATE PERSISTENCE --------------------- */
+
+  function saveResponse() {
+    const selected = document.querySelector('input[name="option"]:checked');
+    if (selected) {
+      responses[currentQuestionIndex] = parseInt(selected.value);
+    }
+  }
+
+  /* --------------------- RESULTS RENDERING --------------------- */
+
+  function renderResults(results) {
+    if (!results || typeof results !== "object") return;
+
+    elements.resultSummary.innerHTML = `
+      ${Object.entries(results)
+        .map(
+          ([phase, score]) => `
+          <div class="result-item">
+            <span class="result-title">${phase}</span>
+            <span class="result-score">${score.toFixed(2)}</span>
+          </div>
+        `
+        )
+        .join("")}
+    `;
+    fadeIn(elements.resultSummary);
+  }
+
+  /* --------------------- EVENT LISTENERS --------------------- */
+
+  function bindEvents() {
+    elements.startBtn?.addEventListener("click", handleStart);
+    elements.nextBtn?.addEventListener("click", handleNext);
+    elements.prevBtn?.addEventListener("click", handlePrev);
+    elements.submitBtn?.addEventListener("click", handleSubmit);
+    elements.restartBtn?.addEventListener("click", handleRestart);
+  }
+
+  /* --------------------- PUBLIC METHODS --------------------- */
+
+  return {
+    init: () => {
+      bindEvents();
+      showSection(elements.intro);
+    },
+    renderQuestion,
+  };
+})();
+
+/* Initialize once DOM is ready */
+document.addEventListener("DOMContentLoaded", () => {
+  if (UI && typeof UI.init === "function") UI.init();
+});
