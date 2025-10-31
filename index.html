@@ -3,45 +3,133 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meta Cognition Test v1 | MCIF 7.1</title>
+  <meta name="description" content="MCIF 7.1 Meta-Cognition Test — Developed by Hayden Andrew Carr" />
+  <meta name="theme-color" content="#3366ff" />
+  <title>Meta Cognition Test v1 | MCIF 7.1 Framework</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Core Scripts -->
   <script defer src="app.js"></script>
   <script defer src="ui.js"></script>
+
+  <!-- Schema & Engine -->
+  <script defer src="schema/schema.js"></script>
+  <script defer src="engine/logic.js"></script>
+  <script defer src="engine/data.js"></script>
+  <script defer src="engine/analysis.js"></script>
+
+  <!-- Manifest (optional for PWA) -->
+  <link rel="manifest" href="manifest.json" />
 </head>
+
 <body>
+  <!-- ========================= HEADER ========================= -->
   <header>
     <h1>Meta-Cognitive Intelligence Framework 7.1</h1>
-    <p>Developed by Hayden Andrew Carr | Meta-Cognitive Intelligence Project</p>
+    <p>Developed by <strong>Hayden Andrew Carr</strong> | Meta-Cognitive Intelligence Project</p>
   </header>
 
-  <main id="app">
-    <section id="intro" class="visible">
-      <h2>Welcome to the Meta Cognition Test</h2>
-      <p>
-        This interactive assessment explores your meta-cognitive awareness,
-        synthesis ability, and introspective logic. Press “Begin” when ready.
-      </p>
-      <button id="startBtn">Begin Test</button>
-    </section>
+  <!-- ========================= MAIN APP ========================= -->
+  <main id="app" class="container">
 
-    <section id="test" class="hidden">
-      <div id="questionContainer"></div>
-      <div id="controls">
-        <button id="prevBtn">Previous</button>
-        <button id="nextBtn">Next</button>
-        <button id="submitBtn" class="hidden">Submit</button>
+    <!-- INTRO SECTION -->
+    <section id="intro" class="visible">
+      <div class="question-card">
+        <h2>Welcome to the Meta Cognition Test</h2>
+        <p>
+          This interactive assessment explores the six core phases of the
+          <strong>MCIF 7.1 Framework</strong> — measuring awareness, synthesis,
+          and introspective logic.  
+          Please take a moment to relax before beginning.
+        </p>
+        <button id="startBtn" class="btn btn-primary">Begin Test</button>
       </div>
     </section>
 
-    <section id="results" class="hidden">
-      <h2>Test Complete</h2>
-      <div id="resultSummary"></div>
-      <button id="restartBtn">Restart</button>
+    <!-- TEST SECTION -->
+    <section id="test" class="hidden">
+      <div id="questionContainer" class="question-card"></div>
+      <div id="controls" class="controls">
+        <button id="prevBtn" class="btn btn-secondary">Previous</button>
+        <button id="nextBtn" class="btn btn-primary">Next</button>
+        <button id="submitBtn" class="btn btn-primary hidden">Submit</button>
+      </div>
     </section>
+
+    <!-- RESULTS SECTION -->
+    <section id="results" class="hidden">
+      <div class="results-card">
+        <h2>Test Complete</h2>
+        <p>Here’s your composite score across all six MCIF phases.</p>
+        <div id="resultSummary" class="results-summary"></div>
+        <button id="restartBtn" class="btn btn-secondary">Restart Test</button>
+      </div>
+    </section>
+
   </main>
 
+  <!-- ========================= FOOTER ========================= -->
   <footer>
-    <p>MCIF v7.1 © 2025 — Research Framework for Meta-Cognitive Intelligence</p>
+    <p>MCIF 7.1 © 2025 — Meta-Cognitive Intelligence Project | All Rights Reserved</p>
   </footer>
+
+  <!-- ========================= BACKGROUND EFFECT (optional aesthetic) ========================= -->
+  <canvas id="bgCanvas"></canvas>
+
+  <script>
+    /* Minimal background motion effect (light performance load) */
+    const canvas = document.getElementById("bgCanvas");
+    const ctx = canvas.getContext("2d");
+    let width, height;
+    const particles = [];
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener("resize", resize);
+    resize();
+
+    for (let i = 0; i < 60; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        r: Math.random() * 2,
+        d: Math.random() * 1
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "rgba(51, 102, 255, 0.05)";
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      update();
+    }
+
+    let angle = 0;
+    function update() {
+      angle += 0.001;
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.y += Math.cos(angle + p.d) + 0.5 + p.r / 2;
+        if (p.y > height) {
+          particles[i] = { x: Math.random() * width, y: 0, r: p.r, d: p.d };
+        }
+      }
+    }
+
+    setInterval(draw, 30);
+  </script>
 </body>
 </html>
