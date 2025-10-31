@@ -1,147 +1,97 @@
-/* 
-  app.js | Meta-Cognition Test (MCIF 7.1)
-  Core application controller
-  Developed by Hayden Andrew Carr | Meta-Cognitive Intelligence Project
-*/
+// ================================
+// MCIF Meta-Cognition Test v1
+// Core App Controller
+// ================================
 
-import { mcifLogic } from './js/logic.js';
-import { mcifData } from './js/data.js';
-import { mcifAnalysis } from './js/analysis.js';
+import { renderQuestion, showResults } from './ui.js';
+import { analyzeResults } from './engine/analysis.js';
 
-let schema = {};
-let weights = {};
-let testState = {
-  currentPhase: 0,
-  responses: [],
-  scores: {},
-  archetype: null,
-  startTime: null,
-  endTime: null,
-  userTier: "Novice",
-  initialized: false
-};
+// Global state
+let schema = null;
+let currentIndex = 0;
+let userResponses = [];
 
-// 🔹 Initialize Application
-async function initializeApp() {
-  console.log("Initializing Meta-Cognition Test...");
+// --------------------
+// INITIALIZATION
+// --------------------
+window.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const response = await fetch('./schema/mcif-schema.json');
+    schema = await response.json();
+    console.log('Schema loaded:', schema);
 
-  schema = await fetchJSON('./data/mcif-schema.json');
-  weights = await fetchJSON('./data/weights.json');
-  mcifData.load(schema);
+    document.getElementById('startBtn').addEventListener('click', startTest);
+    document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+    document.getElementById('prevBtn').addEventListener('click', prevQuestion);
+    document.getElementById('submitBtn').addEventListener('click', submitTest);
+    document.getElementById('restartBtn').addEventListener('click', restartTest);
+  } catch (err) {
+    console.error('Error loading schema:', err);
+  }
+});
 
-  testState.startTime = new Date();
-  testState.initialized = true;
+// --------------------
+// CORE FUNCTIONS
+// --------------------
 
-  console.log("Framework loaded:", schema.version, weights.version);
-
-  renderPhase(0);
+function startTest() {
+  document.getElementById('intro').classList.add('hidden');
+  document.getElementById('test').classList.remove('hidden');
+  renderQuestion(schema.questions[currentIndex], currentIndex);
 }
 
-// 🔹 Utility: Load JSON Files
-async function fetchJSON(path) {
-  const response = await fetch(path);
-  if (!response.ok) throw new Error(`Failed to load ${path}`);
-  return await response.json();
+function nextQuestion() {
+  saveResponse();
+  if (currentIndex < schema.questions.length - 1) {
+    currentIndex++;
+    renderQuestion(schema.questions[currentIndex], currentIndex);
+  }
+  updateButtons();
 }
 
-// 🔹 Render Phase
-function renderPhase(index) {
-  const phase = schema.phases[index];
-  const container = document.getElementById('test-container');
-  container.innerHTML = '';
-
-  const title = document.createElement('h2');
-  title.textContent = phase.name;
-
-  const instructions = document.createElement('p');
-  instructions.textContent = phase.description;
-
-  const questionList = document.createElement('div');
-  questionList.className = 'question-list';
-
-  phase.questions.forEach((q, i) => {
-    const questionBlock = document.createElement('div');
-    questionBlock.className = 'question-block';
-
-    const label = document.createElement('label');
-    label.textContent = q.prompt;
-
-    const input = document.createElement('textarea');
-    input.placeholder = "Type your reflection here...";
-    input.dataset.index = i;
-
-    questionBlock.appendChild(label);
-    questionBlock.appendChild(input);
-    questionList.appendChild(questionBlock);
-  });
-
-  const nextBtn = document.createElement('button');
-  nextBtn.textContent = "Next Phase →";
-  nextBtn.onclick = () => handleNextPhase();
-
-  container.appendChild(title);
-  container.appendChild(instructions);
-  container.appendChild(questionList);
-  container.appendChild(nextBtn);
+function prevQuestion() {
+  saveResponse();
+  if (currentIndex > 0) {
+    currentIndex--;
+    renderQuestion(schema.questions[currentIndex], currentIndex);
+  }
+  updateButtons();
 }
 
-// 🔹 Handle Next Phase Transition
-function handleNextPhase() {
-  const container = document.getElementById('test-container');
-  const inputs = container.querySelectorAll('textarea');
-  const responses = Array.from(inputs).map(input => input.value.trim());
+function updateButtons() {
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const submitBtn = document.getElementById('submitBtn');
 
-  testState.responses.push({
-    phase: schema.phases[testState.currentPhase].name,
-    answers: responses
-  });
+  prevBtn.disabled = currentIndex === 0;
+  nextBtn.classList.toggle('hidden', currentIndex >= schema.questions.length - 1);
+  submitBtn.classList.toggle('hidden', currentIndex < schema.questions.length - 1);
+}
 
-  if (testState.currentPhase < schema.phases.length - 1) {
-    testState.currentPhase++;
-    renderPhase(testState.currentPhase);
-  } else {
-    finishTest();
+function saveResponse() {
+  const selected = document.querySelector('input[name="option"]:checked');
+  if (selected) {
+    userResponses[currentIndex] = {
+      question: schema.questions[currentIndex].text,
+      response: selected.value
+    };
   }
 }
 
-// 🔹 Finish Test
-function finishTest() {
-  testState.endTime = new Date();
-  console.log("Test complete. Running analysis...");
-
-  const duration = (testState.endTime - testState.startTime) / 1000;
-  const analysisResults = mcifAnalysis.run(testState, schema, weights);
-
-  displayResults(analysisResults, duration);
+async function submitTest() {
+  saveResponse();
+  const results = await analyzeResults(userResponses);
+  showResults(results);
 }
 
-// 🔹 Display Results
-function displayResults(results, duration) {
-  const container = document.getElementById('test-container');
-  container.innerHTML = `
-    <h2>Meta-Cognition Test Results</h2>
-    <p><strong>Total Duration:</strong> ${duration.toFixed(2)} seconds</p>
-    <h3>Your Archetype: ${results.archetype}</h3>
-    <p><strong>Composite Score:</strong> ${results.composite.toFixed(2)}</p>
-    <div id="scoreBreakdown"></div>
-  `;
-
-  const breakdownDiv = document.getElementById('scoreBreakdown');
-  for (let [phase, score] of Object.entries(results.phaseScores)) {
-    const item = document.createElement('p');
-    item.textContent = `${phase}: ${score.toFixed(2)} / 100`;
-    breakdownDiv.appendChild(item);
-  }
-
-  const feedback = document.createElement('p');
-  feedback.className = 'feedback';
-  feedback.textContent = results.feedback;
-  container.appendChild(feedback);
+function restartTest() {
+  currentIndex = 0;
+  userResponses = [];
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('intro').classList.remove('hidden');
 }
 
-// 🔹 Event Listener for DOM
-document.addEventListener('DOMContentLoaded', initializeApp);
-
-// Export (optional, if modularized)
-export { initializeApp, handleNextPhase, finishTest, testState };
-
+// --------------------
+// EXPORTS
+// --------------------
+export { schema, userResponses };
