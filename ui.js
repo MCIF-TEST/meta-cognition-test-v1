@@ -1,127 +1,200 @@
-/* ============================================================
-   ui.js – Meta Cognition Test UI Module (Enterprise-Grade)
-   Developed for MCIF Framework | Hayden Andrew Carr
-   ============================================================ */
+/**
+ * MCIF UI Core – Enterprise Edition
+ * Author: Hayden Andrew Carr | Meta-Cognitive Intelligence Project
+ * Version: 7.1+
+ *
+ * Purpose:
+ *  Handles all dynamic UI rendering, event management, and component lifecycle logic
+ *  for the Meta-Cognition Intelligence Framework test interface.
+ */
 
-/* ---------- Core Fade and Transition Utilities ---------- */
-export function fadeIn(element, duration = 400) {
-  if (!element) return;
-  element.style.opacity = 0;
-  element.style.display = "block";
+document.addEventListener("DOMContentLoaded", () => {
+  try {
+    const appContainer = document.getElementById("app");
+    const testContainer = document.getElementById("test-container");
+    const startButton = document.getElementById("start-btn");
+    const nextButton = document.getElementById("next-btn");
+    const progressBar = document.getElementById("progress-bar");
+    const resultContainer = document.getElementById("result-container");
+    const loader = document.getElementById("loader");
 
-  let last = +new Date();
-  const tick = () => {
-    element.style.opacity = +element.style.opacity + (new Date() - last) / duration;
-    last = +new Date();
+    let currentQuestionIndex = 0;
+    let userResponses = [];
+    let isTransitioning = false;
 
-    if (+element.style.opacity < 1) {
-      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
-    } else {
-      element.style.opacity = 1;
-    }
-  };
-  tick();
-}
+    /** -----------------------------------------
+     * UI Lifecycle & Initialization
+     * -------------------------------------- */
+    const initUI = () => {
+      if (!appContainer) {
+        console.error("Error: UI container not found.");
+        return;
+      }
+      fadeIn(appContainer, 600);
+      console.info("%c[MCIF UI] Initialized successfully.", "color: #00c896");
+    };
 
-export function fadeOut(element, duration = 400) {
-  if (!element) return;
-  element.style.opacity = 1;
+    const showLoader = (state = true) => {
+      loader.style.display = state ? "flex" : "none";
+    };
 
-  let last = +new Date();
-  const tick = () => {
-    element.style.opacity = +element.style.opacity - (new Date() - last) / duration;
-    last = +new Date();
-
-    if (+element.style.opacity > 0) {
-      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
-    } else {
+    const fadeIn = (element, duration = 400) => {
       element.style.opacity = 0;
-      element.style.display = "none";
-    }
-  };
-  tick();
-}
+      element.style.display = "block";
+      let opacity = 0;
+      const increment = 50 / duration;
+      const fade = setInterval(() => {
+        opacity += increment;
+        if (opacity >= 1) {
+          clearInterval(fade);
+          element.style.opacity = 1;
+        } else {
+          element.style.opacity = opacity;
+        }
+      }, 50);
+    };
 
-/* ---------- Progress and Message Display ---------- */
-export function updateProgress(current, total) {
-  const progressEl = document.getElementById("progress");
-  if (progressEl) {
-    progressEl.textContent = `Question ${current} of ${total}`;
+    const fadeOut = (element, duration = 400, callback) => {
+      let opacity = 1;
+      const decrement = 50 / duration;
+      const fade = setInterval(() => {
+        opacity -= decrement;
+        if (opacity <= 0) {
+          clearInterval(fade);
+          element.style.display = "none";
+          if (callback) callback();
+        } else {
+          element.style.opacity = opacity;
+        }
+      }, 50);
+    };
+
+    /** -----------------------------------------
+     * Question Rendering
+     * -------------------------------------- */
+    const renderQuestion = (question) => {
+      if (!question) {
+        console.error("No question to render.");
+        return;
+      }
+
+      testContainer.innerHTML = `
+        <div class="question-card">
+          <h2 class="question-title">${question.prompt}</h2>
+          <div class="options-container">
+            ${question.options
+              .map(
+                (opt, idx) => `
+              <button class="option-btn" data-index="${idx}">
+                ${opt}
+              </button>`
+              )
+              .join("")}
+          </div>
+        </div>
+      `;
+
+      document.querySelectorAll(".option-btn").forEach((btn) => {
+        btn.addEventListener("click", handleOptionSelect);
+      });
+    };
+
+    /** -----------------------------------------
+     * User Interaction
+     * -------------------------------------- */
+    const handleOptionSelect = (event) => {
+      if (isTransitioning) return;
+      isTransitioning = true;
+
+      const selectedIndex = event.target.dataset.index;
+      userResponses.push({
+        questionIndex: currentQuestionIndex,
+        response: selectedIndex,
+      });
+
+      fadeOut(testContainer, 400, () => {
+        currentQuestionIndex++;
+        updateProgress();
+        if (currentQuestionIndex < MCIF_SCHEMA.questions.length) {
+          renderQuestion(MCIF_SCHEMA.questions[currentQuestionIndex]);
+          fadeIn(testContainer, 400);
+        } else {
+          finalizeResults();
+        }
+        isTransitioning = false;
+      });
+    };
+
+    /** -----------------------------------------
+     * Progress & Results
+     * -------------------------------------- */
+    const updateProgress = () => {
+      const progressPercent =
+        ((currentQuestionIndex + 1) / MCIF_SCHEMA.questions.length) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+    };
+
+    const finalizeResults = () => {
+      fadeOut(testContainer, 400, () => {
+        showLoader(true);
+        setTimeout(() => {
+          showLoader(false);
+          displayResults();
+        }, 1200);
+      });
+    };
+
+    const displayResults = () => {
+      const score = calculateMCIFScore(userResponses);
+      resultContainer.innerHTML = `
+        <div class="result-card">
+          <h2>Test Complete</h2>
+          <p>Your Meta-Cognitive Harmony Score:</p>
+          <h3 class="score">${score}</h3>
+          <button id="restart-btn">Restart</button>
+        </div>
+      `;
+
+      document.getElementById("restart-btn").addEventListener("click", restartTest);
+      fadeIn(resultContainer, 600);
+    };
+
+    /** -----------------------------------------
+     * Logic Layer (Integrates with app.js + Schema)
+     * -------------------------------------- */
+    const calculateMCIFScore = (responses) => {
+      let total = 0;
+      responses.forEach((r) => {
+        const question = MCIF_SCHEMA.questions[r.questionIndex];
+        total += parseFloat(question.weights[r.response] || 0);
+      });
+      const score = Math.round((total / responses.length) * 100);
+      return score;
+    };
+
+    const restartTest = () => {
+      userResponses = [];
+      currentQuestionIndex = 0;
+      fadeOut(resultContainer, 400, () => {
+        renderQuestion(MCIF_SCHEMA.questions[0]);
+        updateProgress();
+        fadeIn(testContainer, 400);
+      });
+    };
+
+    /** -----------------------------------------
+     * Start Button
+     * -------------------------------------- */
+    startButton.addEventListener("click", () => {
+      fadeOut(startButton, 400, () => {
+        renderQuestion(MCIF_SCHEMA.questions[0]);
+        fadeIn(testContainer, 400);
+      });
+    });
+
+    // Initialize UI
+    initUI();
+  } catch (error) {
+    console.error("[MCIF UI ERROR]:", error);
   }
-}
-
-export function showMessage(message, type = "info") {
-  const promptEl = document.getElementById("prompt");
-  if (!promptEl) return;
-
-  promptEl.textContent = message;
-  promptEl.className = ""; // reset classes
-
-  switch (type) {
-    case "success":
-      promptEl.classList.add("message-success");
-      break;
-    case "error":
-      promptEl.classList.add("message-error");
-      break;
-    default:
-      promptEl.classList.add("message-info");
-  }
-}
-
-/* ---------- Button & Input Feedback ---------- */
-export function setButtonLoading(button, state = true) {
-  if (!button) return;
-  if (state) {
-    button.disabled = true;
-    button.innerHTML = '<span class="spinner"></span> Processing...';
-  } else {
-    button.disabled = false;
-    button.innerHTML = "Next";
-  }
-}
-
-export function shakeElement(element) {
-  if (!element) return;
-  element.classList.add("shake");
-  setTimeout(() => element.classList.remove("shake"), 600);
-}
-
-/* ---------- Initialization ---------- */
-export function initUI() {
-  console.log("%cUI Module initialized successfully", "color:#6cf;font-weight:bold;");
-}
-
-/* ---------- Spinner Styling Injection ---------- */
-(function injectSpinnerStyles() {
-  const style = document.createElement("style");
-  style.textContent = `
-    .spinner {
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      border-top-color: #00bcd4;
-      border-radius: 50%;
-      width: 14px;
-      height: 14px;
-      animation: spin 0.6s linear infinite;
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 6px;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    .shake {
-      animation: shakeAnimation 0.5s;
-    }
-    @keyframes shakeAnimation {
-      10%, 90% { transform: translateX(-2px); }
-      20%, 80% { transform: translateX(4px); }
-      30%, 50%, 70% { transform: translateX(-8px); }
-      40%, 60% { transform: translateX(8px); }
-    }
-    .message-success { color: #4CAF50; }
-    .message-error { color: #FF5252; }
-    .message-info { color: #E0E0E0; }
-  `;
-  document.head.appendChild(style);
-})();
+});
