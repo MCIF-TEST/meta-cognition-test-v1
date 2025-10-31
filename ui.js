@@ -1,4 +1,6 @@
-/* ui.js — small helper utilities for animations and DOM tasks */
+/* ui.js — small helper utilities for animations and DOM tasks
+   Exports helpers so UI controller can import them (no globals).
+*/
 
 export function fadeIn(element, duration = 300) {
   if (!element) return;
@@ -19,7 +21,10 @@ export function fadeIn(element, duration = 300) {
 }
 
 export function fadeOut(element, duration = 300, cb) {
-  if (!element) return;
+  if (!element) {
+    if (typeof cb === 'function') cb();
+    return;
+  }
   element.style.opacity = 1;
   let start = null;
   const step = (timestamp) => {
