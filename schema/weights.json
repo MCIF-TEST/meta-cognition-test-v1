@@ -1,77 +1,44 @@
 {
-  "version": "1.0",
-  "framework": "MCIF 7.1",
-  "description": "Weight configuration for Meta Cognition Test – calibrated to cognitive phase model.",
+  "version": "7.1",
+  "meta": {
+    "totalPoints": 700,
+    "notes": "Primary phase weights and archetype bias vectors."
+  },
   "phases": {
-    "perception": {
-      "weight": 0.18,
-      "sub_dimensions": {
-        "awareness": 0.09,
-        "contextualization": 0.09
-      }
-    },
-    "analysis": {
-      "weight": 0.20,
-      "sub_dimensions": {
-        "pattern_recognition": 0.10,
-        "causal_reasoning": 0.10
-      }
-    },
-    "synthesis": {
-      "weight": 0.22,
-      "sub_dimensions": {
-        "integration": 0.11,
-        "originality": 0.11
-      }
-    },
-    "evaluation": {
-      "weight": 0.18,
-      "sub_dimensions": {
-        "discernment": 0.09,
-        "reflective_accuracy": 0.09
-      }
-    },
-    "expression": {
-      "weight": 0.12,
-      "sub_dimensions": {
-        "clarity": 0.06,
-        "emotional_intelligence": 0.06
-      }
-    },
-    "adaptation": {
-      "weight": 0.10,
-      "sub_dimensions": {
-        "flexibility": 0.05,
-        "meta_learning": 0.05
-      }
-    }
+    "perception": { "weight": 15 },
+    "cognitive": { "weight": 15 },
+    "creative": { "weight": 15 },
+    "emotion": { "weight": 15 },
+    "meta": { "weight": 15 },
+    "philosophy": { "weight": 15 }
+  },
+  "derived": {
+    "adaptability": { "weight": 10, "notes": "Computed from cross-phase variance / flexibility." }
   },
   "archetypes": {
-    "harmonizer": {
-      "bias_vector": [0.2, 0.3, 0.2, 0.1, 0.15, 0.05],
-      "dominant_phases": ["synthesis", "expression"]
+    "Reflective Architect": {
+      "description": "High Meta + Logic",
+      "bias_vector": [0.10, 0.30, 0.05, 0.35, 0.10, 0.10]
     },
-    "architect": {
-      "bias_vector": [0.15, 0.25, 0.25, 0.2, 0.1, 0.05],
-      "dominant_phases": ["analysis", "evaluation"]
+    "Empathic Inventor": {
+      "description": "High Creativity + Emotion",
+      "bias_vector": [0.05, 0.10, 0.30, 0.10, 0.30, 0.15]
     },
-    "navigator": {
-      "bias_vector": [0.25, 0.2, 0.2, 0.15, 0.1, 0.1],
-      "dominant_phases": ["perception", "adaptation"]
+    "Visionary Synthesist": {
+      "description": "Logic + Philosophy + Creativity",
+      "bias_vector": [0.05, 0.30, 0.25, 0.05, 0.20, 0.15]
     },
-    "innovator": {
-      "bias_vector": [0.1, 0.2, 0.3, 0.15, 0.15, 0.1],
-      "dominant_phases": ["synthesis", "perception"]
+    "Grounded Operator": {
+      "description": "High Logic low Meta",
+      "bias_vector": [0.05, 0.45, 0.05, 0.05, 0.10, 0.30]
+    },
+    "Dreaming Idealist": {
+      "description": "High Emotion low Logic",
+      "bias_vector": [0.20, 0.05, 0.30, 0.10, 0.10, 0.25]
+    },
+    "Balanced Strategist": {
+      "description": "Even scores",
+      "bias_vector": [0.166, 0.166, 0.166, 0.166, 0.166, 0.17]
     }
-  },
-  "normalization": {
-    "method": "minmax",
-    "scale_range": [0, 1],
-    "round_to": 3
-  },
-  "meta": {
-    "last_updated": "2025-10-31",
-    "author": "Hayden Andrew Carr",
-    "license": "Meta-Cognitive Intelligence Project – Internal Research License"
   }
 }
