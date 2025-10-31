@@ -3,80 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Meta-Cognition Test (MCIF 7.1) — Measure the architecture of thought, not just its output." />
-  <meta name="author" content="Hayden Andrew Carr | Meta-Cognitive Intelligence Project" />
-
-  <title>Meta-Cognition Test | MCIF 7.1</title>
-
-  <!-- 🧠 Core Styles -->
-  <link rel="stylesheet" href="./css/style.css" />
-
-  <!-- Lucid Flow Icon -->
-  <link rel="icon" href="./assets/favicon.png" type="image/png" />
-
-  <!-- Typography -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
+  <title>Meta Cognition Test v1 | MCIF 7.1</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="app.js"></script>
+  <script defer src="ui.js"></script>
 </head>
-
 <body>
-  <!-- ──────────────────────────────
-       🧠 MCIF 7.1 HEADER
-  ────────────────────────────── -->
-  <header id="main-header">
-    <h1>Meta-Cognition Test</h1>
-    <p class="subtitle">MCIF 7.1 — Measuring the Architecture of Thought</p>
+  <header>
+    <h1>Meta-Cognitive Intelligence Framework 7.1</h1>
+    <p>Developed by Hayden Andrew Carr | Meta-Cognitive Intelligence Project</p>
   </header>
 
-  <!-- ──────────────────────────────
-       🌊 TEST CONTAINER
-  ────────────────────────────── -->
-  <main id="test-container">
-    <div class="intro-section">
-      <h2>Welcome</h2>
+  <main id="app">
+    <section id="intro" class="visible">
+      <h2>Welcome to the Meta Cognition Test</h2>
       <p>
-        The Meta-Cognition Test explores how you think, reflect, and adapt — not just what you know.
-        Each phase invites introspection. Take your time, stay calm, and respond authentically.
+        This interactive assessment explores your meta-cognitive awareness,
+        synthesis ability, and introspective logic. Press “Begin” when ready.
       </p>
+      <button id="startBtn">Begin Test</button>
+    </section>
 
-      <button id="start-btn">Begin the Test →</button>
-    </div>
+    <section id="test" class="hidden">
+      <div id="questionContainer"></div>
+      <div id="controls">
+        <button id="prevBtn">Previous</button>
+        <button id="nextBtn">Next</button>
+        <button id="submitBtn" class="hidden">Submit</button>
+      </div>
+    </section>
+
+    <section id="results" class="hidden">
+      <h2>Test Complete</h2>
+      <div id="resultSummary"></div>
+      <button id="restartBtn">Restart</button>
+    </section>
   </main>
 
-  <!-- ──────────────────────────────
-       🧩 FOOTER + ETHICAL NOTE
-  ────────────────────────────── -->
   <footer>
-    <p>
-      © 2025 Meta-Cognitive Intelligence Project — Developed by
-      <strong>Hayden Andrew Carr</strong> | All Rights Reserved
-    </p>
-    <p class="ethics">
-      Your data remains private. MCIF adheres to ethical AI design — no external tracking, no commercial data use.
-    </p>
+    <p>MCIF v7.1 © 2025 — Research Framework for Meta-Cognitive Intelligence</p>
   </footer>
-
-  <!-- ──────────────────────────────
-       ⚙️ SCRIPTS (ORDER MATTERS)
-  ────────────────────────────── -->
- <script src="engine/data.js"></script>
-<script src="engine/logic.js"></script>
-<script src="engine/analysis.js"></script>
-<script src="app.js"></script>
-<script src="ui.js"></script>
-
-
-  <!-- 🧭 Script for Start Button -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const startBtn = document.getElementById('start-btn');
-      if (startBtn) {
-        startBtn.addEventListener('click', () => {
-          document.querySelector('.intro-section').style.display = 'none';
-          import('./js/app.js').then(({ initializeApp }) => initializeApp());
-        });
-      }
-    });
-  </script>
 </body>
 </html>
-
