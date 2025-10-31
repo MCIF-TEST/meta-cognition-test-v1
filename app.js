@@ -1,170 +1,175 @@
-/* ==========================================================
-   MCIF Meta-Cognition Test – Core Logic (app.js)
-   Author: Hayden Andrew Carr | Meta-Cognitive Intelligence Project
-   Version: 1.0
-   ========================================================== */
+/* app.js — UI controller that uses window.MCIF.Logic */
+document.addEventListener('DOMContentLoaded', async () => {
+  // DOM refs (match index.html corrected IDs)
+  const startBtn = document.getElementById('startBtn');
+  const questionContainer = document.getElementById('questionContainer');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const submitBtn = document.getElementById('submitBtn');
+  const progressEl = document.getElementById('progress');
+  const resultsSection = document.getElementById('results');
+  const resultsSummary = document.getElementById('resultSummary');
+  const restartBtn = document.getElementById('restartBtn');
+  const testSection = document.getElementById('test');
+  const introSection = document.getElementById('intro');
 
-/* =========================
-   GLOBAL STATE MANAGEMENT
-   ========================= */
-const MCIFApp = {
-  currentQuestion: 0,
-  responses: [],
-  startTime: null,
-  isRunning: false,
-};
+  // UI state
+  let current = 0;
+  let total = 0;
+  let inFlight = false;
 
-/* =========================
-   CORE QUESTIONS MODULE
-   ========================= */
-const MCIFQuestions = [
-  {
-    id: 1,
-    prompt: "Choose an everyday object. Describe it as if perceived for the very first time.",
-    type: "text",
-  },
-  {
-    id: 2,
-    prompt: "What emotion do you associate with the color blue?",
-    type: "text",
-  },
-  {
-    id: 3,
-    prompt: "How do you define 'truth' in your own words?",
-    type: "text",
-  },
-  {
-    id: 4,
-    prompt: "If your thoughts had a texture, what would they feel like?",
-    type: "text",
-  },
-  {
-    id: 5,
-    prompt: "Describe a moment when time seemed to slow down for you.",
-    type: "text",
-  },
-];
-
-/* =========================
-   INITIALIZATION
-   ========================= */
-document.addEventListener("DOMContentLoaded", () => {
-  const startButton = document.getElementById("start-btn");
-  const nextButton = document.getElementById("next-btn");
-  const inputField = document.getElementById("response");
-  const promptBox = document.getElementById("prompt");
-  const progress = document.getElementById("progress");
-
-  if (!startButton || !nextButton || !inputField || !promptBox || !progress) {
-    console.error("Missing DOM elements. Please verify HTML structure.");
-    return;
+  // Initialize engine (non-blocking)
+  if (!window.MCIF || !window.MCIF.Logic) {
+    console.warn('MCIF engine not available on window.MCIF.Logic. Ensure engine scripts load first.');
+  } else {
+    try {
+      await window.MCIF.Logic.init();
+    } catch (e) {
+      console.warn('Engine init failed (non-fatal):', e);
+    }
   }
 
-  startButton.addEventListener("click", () => startTest(promptBox, progress));
-  nextButton.addEventListener("click", () =>
-    nextQuestion(promptBox, inputField, progress)
-  );
+  function showIntro(show) {
+    introSection.classList.toggle('hidden', !show);
+    testSection.classList.toggle('hidden', show);
+    resultsSection.classList.add('hidden');
+  }
 
-  // Keyboard shortcuts for accessibility
-  document.addEventListener("keyup", (event) => {
-    if (event.key === "Enter" && MCIFApp.isRunning) {
-      nextQuestion(promptBox, inputField, progress);
+  function showTest() {
+    introSection.classList.add('hidden');
+    testSection.classList.remove('hidden');
+    resultsSection.classList.add('hidden');
+  }
+
+  function showResults() {
+    testSection.classList.add('hidden');
+    resultsSection.classList.remove('hidden');
+  }
+
+  function updateProgress() {
+    progressEl.textContent = `Question ${current + 1} of ${total}`;
+  }
+
+  function renderQuestionUI(question) {
+    // question: { index, prompt, phase }
+    const promptText = (question && (question.prompt.text || question.prompt.prompt || question.prompt)) || 'No prompt available.';
+    // build a simple text-area response UI
+    questionContainer.innerHTML = `
+      <div class="question-card">
+        <h2>${promptText}</h2>
+        <textarea id="responseInput" rows="6" placeholder="Type your response here..." class="response-input"></textarea>
+      </div>
+    `;
+    // populate previously saved response if available
+    const session = window.MCIF?.Logic?.dumpState?.() || null;
+    try {
+      const saved = session?.session?.responses?.[question.index];
+      if (saved && saved.response) {
+        const ta = document.getElementById('responseInput');
+        if (ta) ta.value = saved.response;
+      }
+    } catch (e) {}
+  }
+
+  async function loadAndRender(index) {
+    if (!window.MCIF || !window.MCIF.Logic) return;
+    const q = window.MCIF.Logic.loadQuestion(index) || null;
+    if (!q) {
+      questionContainer.innerHTML = '<div class="question-card"><p>Missing question.</p></div>';
+      return;
+    }
+    renderQuestionUI(q);
+    updateProgress();
+  }
+
+  startBtn?.addEventListener('click', async () => {
+    // Start test
+    current = 0;
+    total = window.MCIF?.Logic?.totalQuestions?.() || 0;
+    if (total === 0) {
+      // fallback to 1 if schema missing
+      total = 1;
+    }
+    showTest();
+    await loadAndRender(current);
+    // Manage control visibility
+    prevBtn.disabled = true;
+    submitBtn.classList.add('hidden');
+    nextBtn.classList.remove('hidden');
+  });
+
+  prevBtn?.addEventListener('click', async () => {
+    if (current <= 0) return;
+    // save current response before moving back
+    const ta = document.getElementById('responseInput');
+    if (ta && window.MCIF?.Logic?.recordResponse) {
+      window.MCIF.Logic.recordResponse(current, ta.value, { endTime: new Date().toISOString() });
+    }
+    current--;
+    await loadAndRender(current);
+    prevBtn.disabled = current === 0;
+    submitBtn.classList.add('hidden');
+    nextBtn.classList.remove('hidden');
+  });
+
+  nextBtn?.addEventListener('click', async () => {
+    const ta = document.getElementById('responseInput');
+    if (!ta || !ta.value.trim()) {
+      alert('Please provide a response before continuing.');
+      return;
+    }
+    // record
+    if (window.MCIF?.Logic?.recordResponse) {
+      window.MCIF.Logic.recordResponse(current, ta.value.trim(), { endTime: new Date().toISOString() });
+    }
+    current++;
+    if (current >= total) {
+      // show submit
+      current = total - 1;
+      submitBtn.classList.remove('hidden');
+      nextBtn.classList.add('hidden');
+      await loadAndRender(current);
+    } else {
+      await loadAndRender(current);
+    }
+    prevBtn.disabled = current === 0;
+  });
+
+  submitBtn?.addEventListener('click', async () => {
+    const ta = document.getElementById('responseInput');
+    if (ta && ta.value && window.MCIF?.Logic?.recordResponse) {
+      window.MCIF.Logic.recordResponse(current, ta.value.trim(), { endTime: new Date().toISOString() });
+    }
+    // call analysis
+    try {
+      const report = await window.MCIF.Logic.analyze();
+      // display in results
+      resultsSummary.innerHTML = `
+        <h2>Test Complete</h2>
+        <p>Composite Score: <strong>${Math.round((report.composite || 0) * 100)}%</strong></p>
+        <pre class="report-json">${JSON.stringify(report, null, 2)}</pre>
+      `;
+    } catch (e) {
+      resultsSummary.innerHTML = `<h2>Test Complete</h2><p>Analysis failed: ${e.message || e}</p>`;
+    }
+    showResults();
+  });
+
+  restartBtn?.addEventListener('click', async () => {
+    if (window.MCIF?.Logic?.clearSession) window.MCIF.Logic.clearSession();
+    // show intro and reset
+    showIntro(true);
+  });
+
+  // Keyboard shortcuts: Enter to submit while in textarea
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.shiftKey) return; // allow shift+enter for newline
+    if (e.key === 'Enter') {
+      const ta = document.activeElement;
+      if (ta && ta.id === 'responseInput') {
+        e.preventDefault();
+        nextBtn?.click();
+      }
     }
   });
 });
-
-/* =========================
-   TEST FLOW CONTROL
-   ========================= */
-function startTest(promptBox, progress) {
-  if (MCIFApp.isRunning) return;
-
-  MCIFApp.isRunning = true;
-  MCIFApp.startTime = Date.now();
-  MCIFApp.currentQuestion = 0;
-  MCIFApp.responses = [];
-
-  document.getElementById("start-btn").classList.add("hidden");
-  document.getElementById("test-container").classList.remove("hidden");
-
-  renderQuestion(promptBox, progress);
-}
-
-function nextQuestion(promptBox, inputField, progress) {
-  const userInput = inputField.value.trim();
-
-  if (!userInput) {
-    alert("Please provide a response before continuing.");
-    return;
-  }
-
-  MCIFApp.responses.push({
-    questionId: MCIFQuestions[MCIFApp.currentQuestion].id,
-    response: userInput,
-    timestamp: new Date().toISOString(),
-  });
-
-  inputField.value = "";
-  MCIFApp.currentQuestion++;
-
-  if (MCIFApp.currentQuestion < MCIFQuestions.length) {
-    renderQuestion(promptBox, progress);
-  } else {
-    finishTest();
-  }
-}
-
-function renderQuestion(promptBox, progress) {
-  const question = MCIFQuestions[MCIFApp.currentQuestion];
-  if (!question) return finishTest();
-
-  promptBox.textContent = question.prompt;
-  progress.textContent = `Question ${MCIFApp.currentQuestion + 1} of ${
-    MCIFQuestions.length
-  }`;
-
-  // Smooth fade animation (delegated to ui.js)
-  if (typeof fadeIn === "function") fadeIn(promptBox);
-}
-
-/* =========================
-   FINALIZATION
-   ========================= */
-function finishTest() {
-  MCIFApp.isRunning = false;
-  const totalTime = ((Date.now() - MCIFApp.startTime) / 1000).toFixed(1);
-
-  // Save results locally (future upgrade: API integration)
-  localStorage.setItem("MCIF_Test_Results", JSON.stringify(MCIFApp.responses));
-
-  const summary = `
-    <h2>Test Complete</h2>
-    <p>You completed the test in <strong>${totalTime}</strong> seconds.</p>
-    <p>Total responses: ${MCIFApp.responses.length}</p>
-    <button id="download-btn" class="btn-primary">Download Results</button>
-  `;
-
-  const container = document.getElementById("test-container");
-  container.innerHTML = summary;
-
-  const downloadButton = document.getElementById("download-btn");
-  if (downloadButton) {
-    downloadButton.addEventListener("click", () => downloadResults());
-  }
-}
-
-/* =========================
-   UTILITIES
-   ========================= */
-function downloadResults() {
-  const dataStr = JSON.stringify(MCIFApp.responses, null, 2);
-  const blob = new Blob([dataStr], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "mcif_test_results.json";
-  a.click();
-
-  URL.revokeObjectURL(url);
-}
