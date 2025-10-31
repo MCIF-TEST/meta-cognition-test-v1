@@ -6,7 +6,7 @@
   <title>MCIF 7.1 — Meta-Cognition Test</title>
   <link rel="icon" href="assets/favicon.png" />
   <link rel="stylesheet" href="style.css" />
-  <!-- Load modules in stable order -->
+  <!-- Load engine & UI modules -->
   <script type="module" src="./engine/logic.js"></script>
   <script type="module" src="./engine/analysis.js"></script>
   <script type="module" src="./engine/data.js"></script>
@@ -24,7 +24,8 @@
     <section id="intro">
       <div class="question-card">
         <h2>Welcome to the MCIF 7.1 Test</h2>
-        <p>This assessment follows the MCIF white page structure: six phases, reflective prompts, and an explainable scoring engine. No external AI key is required — scoring is local and auditable.</p>
+        <p>This assessment follows the full MCIF white-page design: six phases, reflective prompts, psycholinguistic signatures, and an explainable scoring engine. No external AI key is required — scoring is local and auditable.</p>
+
         <div class="tier-select">
           <label for="tier">Choose session Tier:</label>
           <select id="tier">
@@ -33,6 +34,15 @@
             <option value="visionary">Visionary (60–90 min)</option>
           </select>
         </div>
+
+        <div class="mentor-toggle">
+          <label><input id="mentorToggle" type="checkbox" /> Mentor Mode — show reflective coach (local only)</label>
+        </div>
+
+        <div class="timer-hint" id="timerHint" aria-live="polite">
+          Suggested per-prompt time: <strong id="suggestedTime">~5–10 min</strong>
+        </div>
+
         <button id="startBtn" class="btn btn-primary">Begin Test</button>
       </div>
     </section>
@@ -53,8 +63,15 @@
       <div class="results-card">
         <h2>Test Complete</h2>
         <div id="summaryBlock"></div>
-        <canvas id="metaCurve" width="800" height="200" style="width:100%;height:160px;border:1px solid #eee;"></canvas>
-        <canvas id="radarChart" width="400" height="400" style="width:100%;height:360px;"></canvas>
+
+        <div class="charts-grid">
+          <canvas id="metaCurve" width="800" height="200" style="width:100%;height:160px;border:1px solid #eee;"></canvas>
+          <canvas id="radarChart" width="400" height="400" style="width:100%;height:360px;"></canvas>
+          <canvas id="phaseBars" width="600" height="200" style="width:100%;height:160px;border:1px solid #eee;"></canvas>
+        </div>
+
+        <div id="mentorPanel" class="mentor-panel hidden" aria-live="polite"></div>
+
         <pre id="rawReport" class="report-json"></pre>
         <button id="restartBtn" class="btn btn-secondary">Restart</button>
       </div>
