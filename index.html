@@ -1,104 +1,80 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MCIF — Meta-Cognition Intelligence Framework (Web)</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Meta-Cognition Test (MCIF 7.1) — Measure the architecture of thought, not just its output." />
+  <meta name="author" content="Hayden Andrew Carr | Meta-Cognitive Intelligence Project" />
+
+  <title>Meta-Cognition Test | MCIF 7.1</title>
+
+  <!-- 🧠 Core Styles -->
+  <link rel="stylesheet" href="./css/style.css" />
+
+  <!-- Lucid Flow Icon -->
+  <link rel="icon" href="./assets/favicon.png" type="image/png" />
+
+  <!-- Typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
 </head>
+
 <body>
-  <main class="container">
-    <header>
-      <h1>MCIF — Meta-Cognition Intelligence Framework</h1>
-      <p class="tagline">A mirror for how you think. Local-first, privacy-friendly, GitHub Pages ready.</p>
-    </header>
+  <!-- ──────────────────────────────
+       🧠 MCIF 7.1 HEADER
+  ────────────────────────────── -->
+  <header id="main-header">
+    <h1>Meta-Cognition Test</h1>
+    <p class="subtitle">MCIF 7.1 — Measuring the Architecture of Thought</p>
+  </header>
 
-    <section id="consent" class="card">
-      <h2>Before we begin</h2>
+  <!-- ──────────────────────────────
+       🌊 TEST CONTAINER
+  ────────────────────────────── -->
+  <main id="test-container">
+    <div class="intro-section">
+      <h2>Welcome</h2>
       <p>
-        This is a reflective tool, not a clinical diagnosis. Your responses stay in your browser
-        unless you export them. Do you consent to proceed?
+        The Meta-Cognition Test explores how you think, reflect, and adapt — not just what you know.
+        Each phase invites introspection. Take your time, stay calm, and respond authentically.
       </p>
-      <div class="row">
-        <button id="btn-consent-yes" class="btn primary">Yes — Start</button>
-        <button id="btn-consent-no" class="btn">Not now</button>
-      </div>
-    </section>
 
-    <section id="setup" class="card hidden">
-      <h2>Choose mode</h2>
-      <div id="modes" class="modes"></div>
-      <div class="small muted">Estimated time will appear after you choose a mode.</div>
-    </section>
-
-    <section id="calibration" class="card hidden">
-      <h2>Warm-up (Calibration)</h2>
-      <p>Two quick warm-ups so the system can adapt to your style.</p>
-      <div id="calibration-prompts"></div>
-      <div class="row">
-        <button id="btn-calibration-next" class="btn primary">Next</button>
-      </div>
-    </section>
-
-    <section id="question-panel" class="card hidden">
-      <div id="progress" class="progress">Question <span id="q-index">0</span>/<span id="q-total">0</span></div>
-      <h2 id="question-domain"></h2>
-      <p id="question-prompt" class="prompt"></p>
-      <textarea id="response-text" placeholder="Type your answer here..." rows="6"></textarea>
-
-      <div class="self-rate">
-        <label>Optional: Self-rate your response (use sliders if you want the AI to bootstrap scoring)</label>
-        <div class="sliders">
-          <label>Depth <input type="range" id="rate-depth" min="1" max="5" value="3"></label>
-          <label>Originality <input type="range" id="rate-originality" min="1" max="5" value="3"></label>
-          <label>Clarity <input type="range" id="rate-clarity" min="1" max="5" value="3"></label>
-          <label>Self-Awareness <input type="range" id="rate-selfawareness" min="1" max="5" value="3"></label>
-          <label>Adaptability <input type="range" id="rate-adaptability" min="1" max="5" value="3"></label>
-        </div>
-      </div>
-
-      <div class="row">
-        <button id="btn-skip" class="btn">Skip</button>
-        <button id="btn-submit" class="btn primary">Submit Answer</button>
-      </div>
-      <div id="adaptive-hint" class="hint muted"></div>
-    </section>
-
-    <section id="micro-reflection" class="card hidden">
-      <h2>Micro Reflection</h2>
-      <p id="micro-prompt"></p>
-      <textarea id="micro-response" rows="4" placeholder="How would you re-describe it now?"></textarea>
-      <div class="row">
-        <button id="btn-micro-submit" class="btn primary">Submit Reflection</button>
-      </div>
-    </section>
-
-    <section id="completion" class="card hidden">
-      <h2>Finished — Generate Report</h2>
-      <p id="completion-text"></p>
-      <div class="row">
-        <button id="btn-generate" class="btn primary">Generate dashboard & transcript</button>
-        <button id="btn-start-over" class="btn">Start over</button>
-      </div>
-    </section>
-
-    <section id="report" class="card hidden">
-      <h2>Your Dashboard</h2>
-      <pre id="dashboard-json" class="json-block"></pre>
-      <div class="row">
-        <button id="btn-download-dashboard" class="btn primary">Download dashboard.json</button>
-        <button id="btn-download-transcript" class="btn">Download transcript.json</button>
-      </div>
-      <div class="row">
-        <button id="btn-run-microtest" class="btn">Run 2-min micro-test</button>
-      </div>
-    </section>
-
-    <footer class="muted">
-      <small>MCIF v5 — Local-first demo. Put <code>MCIF_5_MasterSchema.json</code> in repo root. Built for GitHub Pages.</small>
-    </footer>
+      <button id="start-btn">Begin the Test →</button>
+    </div>
   </main>
 
-  <script src="script.js"></script>
+  <!-- ──────────────────────────────
+       🧩 FOOTER + ETHICAL NOTE
+  ────────────────────────────── -->
+  <footer>
+    <p>
+      © 2025 Meta-Cognitive Intelligence Project — Developed by
+      <strong>Hayden Andrew Carr</strong> | All Rights Reserved
+    </p>
+    <p class="ethics">
+      Your data remains private. MCIF adheres to ethical AI design — no external tracking, no commercial data use.
+    </p>
+  </footer>
+
+  <!-- ──────────────────────────────
+       ⚙️ SCRIPTS (ORDER MATTERS)
+  ────────────────────────────── -->
+  <script type="module" src="./js/ui.js"></script>
+  <script type="module" src="./js/logic.js"></script>
+  <script type="module" src="./js/data.js"></script>
+  <script type="module" src="./js/analysis.js"></script>
+  <script type="module" src="./js/app.js"></script>
+
+  <!-- 🧭 Script for Start Button -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const startBtn = document.getElementById('start-btn');
+      if (startBtn) {
+        startBtn.addEventListener('click', () => {
+          document.querySelector('.intro-section').style.display = 'none';
+          import('./js/app.js').then(({ initializeApp }) => initializeApp());
+        });
+      }
+    });
+  </script>
 </body>
 </html>
