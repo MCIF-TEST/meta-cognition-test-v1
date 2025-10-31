@@ -1,159 +1,252 @@
-/*
-  style.css | Meta-Cognition Test (MCIF 7.1)
-  Lucid Flow UI — Cognitive Design Language
-  Developed by Hayden Andrew Carr | Meta-Cognitive Intelligence Project
-*/
+/* ================================================================
+   MCIF Meta-Cognition Test v1
+   Enterprise-grade style system
+   ================================================================= */
 
-/* ==== CORE RESET ==== */
-* {
+/* ----- CSS RESET & BASE TYPOGRAPHY ----- */
+:root {
+  /* Color palette – MCIF signature neutral harmony */
+  --color-bg: #f7f9fc;
+  --color-surface: #ffffff;
+  --color-primary: #3366ff;
+  --color-primary-light: #5c84ff;
+  --color-accent: #00bfa6;
+  --color-text: #1f2937;
+  --color-text-light: #4b5563;
+  --color-border: #e5e7eb;
+  --color-error: #dc2626;
+
+  /* Spacing and sizing */
+  --radius: 10px;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --transition: all 0.25s ease;
+
+  /* Typography */
+  --font-main: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-size-base: 16px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
-  transition: all 0.3s ease;
+  font-family: var(--font-main);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
-html, body {
-  height: 100%;
-  background: radial-gradient(circle at center, #0f111a 0%, #08090f 100%);
-  color: #e4e6eb;
-  overflow-x: hidden;
+/* Smooth transitions globally */
+a,
+button,
+input {
+  transition: var(--transition);
 }
 
-/* ==== LAYOUT ==== */
-#app {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 3rem;
+/* ----- LAYOUT STRUCTURE ----- */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ----- HEADER ----- */
+header {
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow);
+  padding: 1.5rem 2rem;
   text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-#test-container {
-  width: 100%;
-  max-width: 800px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 2rem 3rem;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(20px);
-}
-
-/* ==== TYPOGRAPHY ==== */
-h1, h2, h3 {
-  color: #ffffff;
-  margin-bottom: 1rem;
-  font-weight: 600;
+header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0;
   letter-spacing: 0.5px;
 }
 
-p {
-  color: #cfd1d5;
-  line-height: 1.6;
+/* ----- QUESTION CARD ----- */
+.question-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  transition: var(--transition);
+}
+
+.question-card:hover {
+  transform: translateY(-2px);
+}
+
+.question-title {
+  color: var(--color-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
   margin-bottom: 1rem;
 }
 
-/* ==== QUESTION BLOCK ==== */
-.question-list {
-  margin-top: 1.5rem;
+.question-text {
+  color: var(--color-text-light);
+  margin-bottom: 1.5rem;
 }
 
-.question-block {
-  margin-bottom: 1.8rem;
-  text-align: left;
+/* ----- OPTIONS ----- */
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.question-block label {
-  display: block;
-  font-weight: 500;
-  color: #9fa5b3;
-  margin-bottom: 0.5rem;
-}
-
-.question-block textarea {
-  width: 100%;
-  min-height: 90px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #e6e8ec;
-  padding: 0.75rem;
-  resize: vertical;
-  font-size: 0.95rem;
-  outline: none;
-}
-
-.question-block textarea:focus {
-  border-color: #73a9ff;
-  box-shadow: 0 0 8px rgba(115, 169, 255, 0.5);
-}
-
-/* ==== BUTTONS ==== */
-button {
-  display: inline-block;
-  background: linear-gradient(90deg, #3a9df8, #8f68ff);
-  color: white;
-  padding: 0.75rem 2rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+.option-label {
+  display: flex;
+  align-items: center;
+  background-color: #f3f4f6;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
   cursor: pointer;
-  margin-top: 1.5rem;
+  transition: var(--transition);
 }
 
-button:hover {
-  transform: scale(1.04);
-  background: linear-gradient(90deg, #68b1ff, #a37aff);
+.option-label:hover {
+  background-color: var(--color-primary-light);
+  color: #fff;
+  border-color: var(--color-primary-light);
 }
 
-/* ==== RESULTS PANEL ==== */
-.feedback {
-  margin-top: 1.5rem;
+.option-input {
+  margin-right: 0.75rem;
+  accent-color: var(--color-primary);
+}
+
+.option-text {
+  font-size: 1rem;
+}
+
+/* ----- BUTTONS ----- */
+.btn {
+  display: inline-block;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-light);
+}
+
+.btn-secondary {
+  background-color: var(--color-accent);
+  color: #fff;
+}
+
+.btn-secondary:hover {
+  opacity: 0.9;
+}
+
+/* ----- RESULTS CARD ----- */
+.results-card {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+  text-align: center;
+}
+
+.results-card h2 {
+  color: var(--color-primary);
+  margin-bottom: 1.25rem;
+}
+
+.results-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  background: #f9fafb;
+  border: 1px solid var(--color-border);
+}
+
+.result-title {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.result-score {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* ----- FOOTER ----- */
+footer {
+  text-align: center;
   padding: 1rem;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  font-style: italic;
-  color: #b8bdd3;
+  font-size: 0.875rem;
+  color: var(--color-text-light);
 }
 
-/* ==== COLOR GRADIENTS PER TIER ==== */
-body[data-tier="Novice"] #test-container { border-top: 3px solid #6f86d6; }
-body[data-tier="Intermediate"] #test-container { border-top: 3px solid #73a9ff; }
-body[data-tier="Advanced"] #test-container { border-top: 3px solid #9b6cff; }
-body[data-tier="Expert"] #test-container { border-top: 3px solid #c67aff; }
-body[data-tier="Savant"] #test-container { border-top: 3px solid #ff9bff; }
-
-/* ==== ANIMATIONS ==== */
-@keyframes lucidFlow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.lucid-flow {
-  background: linear-gradient(270deg, #3a9df8, #8f68ff, #6f86d6);
-  background-size: 600% 600%;
-  animation: lucidFlow 8s ease infinite;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* ==== RESPONSIVE ==== */
-@media (max-width: 768px) {
-  #test-container {
-    padding: 1.5rem;
+/* ----- RESPONSIVE DESIGN ----- */
+@media (max-width: 600px) {
+  .container {
+    padding: 1rem;
   }
 
-  h2 {
-    font-size: 1.4rem;
+  .question-card,
+  .results-card {
+    padding: 1.25rem;
   }
 
-  button {
-    width: 100%;
+  header h1 {
+    font-size: 1.5rem;
   }
 }
-/* Placeholder for style */ 
 
+/* ----- ANIMATIONS ----- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.question-card,
+.results-card {
+  animation: fadeInUp 0.4s ease-out;
+}
