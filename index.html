@@ -13,21 +13,15 @@
   <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
 
-  <!-- Core Scripts: load as modules so imports/exports work. Order matters. -->
+  <!-- Schema & Modules (use modules consistently; modules are deferred by default) -->
+  <script type="module" src="./schema/schema.js"></script>
   <script type="module" src="./engine/logic.js"></script>
   <script type="module" src="./engine/analysis.js"></script>
   <script type="module" src="./engine/data.js"></script>
 
-  <!-- app and ui use the global DOM and engine; load after engine modules -->
+  <!-- app and ui depend on engine modules; load as modules -->
   <script type="module" src="./app.js"></script>
   <script type="module" src="./ui.js"></script>
-</head>
-
-  <!-- Schema & Engine -->
-  <script defer src="schema/schema.js"></script>
-  <script defer src="engine/logic.js"></script>
-  <script defer src="engine/data.js"></script>
-  <script defer src="engine/analysis.js"></script>
 
   <!-- Manifest (optional for PWA) -->
   <link rel="manifest" href="manifest.json" />
@@ -41,56 +35,33 @@
   </header>
 
   <!-- ========================= MAIN APP ========================= -->
- <main id="app" class="container">
-  <section id="intro" >
-    <div class="question-card">
-      <h2>Welcome to the Meta Cognition Test</h2>
-      <p>
-        This interactive assessment explores the six core phases of the MCIF 7.1 Framework — measuring awareness, synthesis, and introspective logic.
-      </p>
-      <button id="startBtn" class="btn btn-primary">Begin Test</button>
-    </div>
-  </section>
+  <main id="app" class="container">
+    <section id="intro">
+      <div class="question-card">
+        <h2>Welcome to the Meta Cognition Test</h2>
+        <p>
+          This interactive assessment explores the six core phases of the MCIF 7.1 Framework — measuring awareness, synthesis, and introspective logic.
+        </p>
+        <button id="startBtn" class="btn btn-primary">Begin Test</button>
+      </div>
+    </section>
 
-  <section id="test" class="hidden">
-    <div id="questionContainer" class="question-card"></div>
-
-    <div id="controls" class="controls">
-      <button id="prevBtn" class="btn btn-secondary">Previous</button>
-      <button id="nextBtn" class="btn btn-primary">Next</button>
-      <button id="submitBtn" class="btn btn-primary hidden">Submit</button>
-    </div>
-
-    <p id="progress" class="progress-indicator">Question 0 of 0</p>
-  </section>
-
-  <section id="results" class="hidden">
-    <div id="resultSummary" class="results-card"></div>
-    <button id="restartBtn" class="btn btn-secondary">Restart</button>
-  </section>
-</main>
-
-
-    <!-- TEST SECTION -->
     <section id="test" class="hidden">
       <div id="questionContainer" class="question-card"></div>
+
       <div id="controls" class="controls">
         <button id="prevBtn" class="btn btn-secondary">Previous</button>
         <button id="nextBtn" class="btn btn-primary">Next</button>
         <button id="submitBtn" class="btn btn-primary hidden">Submit</button>
       </div>
+
+      <p id="progress" class="progress-indicator">Question 0 of 0</p>
     </section>
 
-    <!-- RESULTS SECTION -->
     <section id="results" class="hidden">
-      <div class="results-card">
-        <h2>Test Complete</h2>
-        <p>Here’s your composite score across all six MCIF phases.</p>
-        <div id="resultSummary" class="results-summary"></div>
-        <button id="restartBtn" class="btn btn-secondary">Restart Test</button>
-      </div>
+      <div id="resultSummary" class="results-card"></div>
+      <button id="restartBtn" class="btn btn-secondary">Restart</button>
     </section>
-
   </main>
 
   <!-- ========================= FOOTER ========================= -->
@@ -102,56 +73,58 @@
   <canvas id="bgCanvas"></canvas>
 
   <script>
-    /* Minimal background motion effect (light performance load) */
-    const canvas = document.getElementById("bgCanvas");
-    const ctx = canvas.getContext("2d");
-    let width, height;
-    const particles = [];
+    // Run after DOM is ready to ensure canvas exists
+    document.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById("bgCanvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      let width, height;
+      const particles = [];
 
-    function resize() {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    }
-
-    window.addEventListener("resize", resize);
-    resize();
-
-    for (let i = 0; i < 60; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        r: Math.random() * 2,
-        d: Math.random() * 1
-      });
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = "rgba(51, 102, 255, 0.05)";
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
+      function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
       }
-      update();
-    }
 
-    let angle = 0;
-    function update() {
-      angle += 0.001;
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        p.y += Math.cos(angle + p.d) + 0.5 + p.r / 2;
-        if (p.y > height) {
-          particles[i] = { x: Math.random() * width, y: 0, r: p.r, d: p.d };
+      window.addEventListener("resize", resize);
+      resize();
+
+      for (let i = 0; i < 60; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          r: Math.random() * 2,
+          d: Math.random() * 1
+        });
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "rgba(51, 102, 255, 0.05)";
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        update();
+      }
+
+      let angle = 0;
+      function update() {
+        angle += 0.001;
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.y += Math.cos(angle + p.d) + 0.5 + p.r / 2;
+          if (p.y > height) {
+            particles[i] = { x: Math.random() * width, y: 0, r: p.r, d: p.d };
+          }
         }
       }
-    }
 
-    setInterval(draw, 30);
+      setInterval(draw, 30);
+    });
   </script>
 </body>
 </html>
-
 
