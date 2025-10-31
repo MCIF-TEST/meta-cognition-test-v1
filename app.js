@@ -1,4 +1,7 @@
-/* app.js — UI controller that uses window.MCIF.Logic */
+/* app.js — UI controller that uses window.MCIF.Logic (keeps controller small and explicit) */
+
+import { fadeIn, fadeOut } from './ui.js';
+
 document.addEventListener('DOMContentLoaded', async () => {
   // DOM refs (match index.html corrected IDs)
   const startBtn = document.getElementById('startBtn');
@@ -16,13 +19,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   // UI state
   let current = 0;
   let total = 0;
-  let inFlight = false;
 
-  // Initialize engine (non-blocking)
+  // Initialize engine explicitly (if available)
   if (!window.MCIF || !window.MCIF.Logic) {
     console.warn('MCIF engine not available on window.MCIF.Logic. Ensure engine scripts load first.');
   } else {
     try {
+      // init can accept options like adapters, sessionMeta — left empty for default
       await window.MCIF.Logic.init();
     } catch (e) {
       console.warn('Engine init failed (non-fatal):', e);
@@ -56,19 +59,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     // build a simple text-area response UI
     questionContainer.innerHTML = `
       <div class="question-card">
-        <h2>${promptText}</h2>
+        <h2>${escapeHtml(promptText)}</h2>
         <textarea id="responseInput" rows="6" placeholder="Type your response here..." class="response-input"></textarea>
       </div>
     `;
     // populate previously saved response if available
-    const session = window.MCIF?.Logic?.dumpState?.() || null;
     try {
-      const saved = session?.session?.responses?.[question.index];
+      const sessionDump = window.MCIF?.Logic?.dumpState?.();
+      const saved = sessionDump?.session?.responses?.[question.index];
       if (saved && saved.response) {
         const ta = document.getElementById('responseInput');
         if (ta) ta.value = saved.response;
       }
-    } catch (e) {}
+    } catch (e) {
+      // ignore
+    }
   }
 
   async function loadAndRender(index) {
@@ -83,16 +88,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   startBtn?.addEventListener('click', async () => {
-    // Start test
     current = 0;
     total = window.MCIF?.Logic?.totalQuestions?.() || 0;
-    if (total === 0) {
-      // fallback to 1 if schema missing
-      total = 1;
-    }
+    if (total === 0) total = 1;
     showTest();
     await loadAndRender(current);
-    // Manage control visibility
     prevBtn.disabled = true;
     submitBtn.classList.add('hidden');
     nextBtn.classList.remove('hidden');
@@ -124,7 +124,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     current++;
     if (current >= total) {
-      // show submit
       current = total - 1;
       submitBtn.classList.remove('hidden');
       nextBtn.classList.add('hidden');
@@ -140,31 +139,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (ta && ta.value && window.MCIF?.Logic?.recordResponse) {
       window.MCIF.Logic.recordResponse(current, ta.value.trim(), { endTime: new Date().toISOString() });
     }
-    // call analysis
     try {
       const report = await window.MCIF.Logic.analyze();
-      // display in results
       resultsSummary.innerHTML = `
         <h2>Test Complete</h2>
         <p>Composite Score: <strong>${Math.round((report.composite || 0) * 100)}%</strong></p>
-        <pre class="report-json">${JSON.stringify(report, null, 2)}</pre>
+        <pre class="report-json">${escapeHtml(JSON.stringify(report, null, 2))}</pre>
       `;
     } catch (e) {
-      resultsSummary.innerHTML = `<h2>Test Complete</h2><p>Analysis failed: ${e.message || e}</p>`;
+      resultsSummary.innerHTML = `<h2>Test Complete</h2><p>Analysis failed: ${escapeHtml(e.message || String(e))}</p>`;
     }
     showResults();
   });
 
   restartBtn?.addEventListener('click', async () => {
     if (window.MCIF?.Logic?.clearSession) window.MCIF.Logic.clearSession();
-    // show intro and reset
     showIntro(true);
   });
 
-  // Keyboard shortcuts: Enter to submit while in textarea
+  // Simple helper to guard text inserted into innerHTML
+  function escapeHtml(str) {
+    if (typeof str !== 'string') return '';
+    return str.replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  }
+
+  // Keyboard: Enter (without shift) advances to next question
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && e.shiftKey) return; // allow shift+enter for newline
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey) {
       const ta = document.activeElement;
       if (ta && ta.id === 'responseInput') {
         e.preventDefault();
