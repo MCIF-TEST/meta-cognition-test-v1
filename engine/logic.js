@@ -60,7 +60,7 @@
     },
     ledger: loadLedger(),
     analyticsCache: null,
-  };
+  }
 
   // ---------------------------
   // Utility helpers
@@ -609,7 +609,6 @@
   // ---------------------------
   // Public orchestration methods
   // ---------------------------
-
   async function init(options = {}) {
     try {
       // merge options into adapters if provided
@@ -707,16 +706,9 @@
   window.MCIF.analyze = analyzePublic;
   window.MCIF.init = init;
 
-  // Auto-init attempt (non-blocking) if user didn't call explicitly
-  (async () => {
-    try {
-      // initialization is optional and returns quickly if already done
-      await init({});
-      safeLog("MCIF engine auto-initialized (non-blocking).");
-    } catch (e) {
-      console.warn("MCIF engine auto-init failed (manual init recommended):", e.message);
-    }
-  })();
+  // NOTE: Automatic engine auto-init has been intentionally removed to comply
+  // with explicit initialization policy (no surprising side effects). Call
+  // window.MCIF.init() from UI/application code when ready.
 
   // ---------------------------
   // End of engine
