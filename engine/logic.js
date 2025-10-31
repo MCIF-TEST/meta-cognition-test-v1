@@ -1,3 +1,5 @@
+window.MCIFLogic = {};
+
 /* ==========================================================
    MCIF 7.1 Cognitive Engine – logic.js
    Developed by Hayden Andrew Carr | Meta-Cognitive Intelligence Project
@@ -182,3 +184,4 @@ export const MCIFEngine = {
 window.addEventListener('DOMContentLoaded', async () => {
   await MCIFEngine.init();
 });
+
