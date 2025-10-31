@@ -41,21 +41,35 @@
   </header>
 
   <!-- ========================= MAIN APP ========================= -->
-  <main id="app" class="container">
+ <main id="app" class="container">
+  <section id="intro" >
+    <div class="question-card">
+      <h2>Welcome to the Meta Cognition Test</h2>
+      <p>
+        This interactive assessment explores the six core phases of the MCIF 7.1 Framework — measuring awareness, synthesis, and introspective logic.
+      </p>
+      <button id="startBtn" class="btn btn-primary">Begin Test</button>
+    </div>
+  </section>
 
-    <!-- INTRO SECTION -->
-    <section id="intro" class="visible">
-      <div class="question-card">
-        <h2>Welcome to the Meta Cognition Test</h2>
-        <p>
-          This interactive assessment explores the six core phases of the
-          <strong>MCIF 7.1 Framework</strong> — measuring awareness, synthesis,
-          and introspective logic.  
-          Please take a moment to relax before beginning.
-        </p>
-        <button id="startBtn" class="btn btn-primary">Begin Test</button>
-      </div>
-    </section>
+  <section id="test" class="hidden">
+    <div id="questionContainer" class="question-card"></div>
+
+    <div id="controls" class="controls">
+      <button id="prevBtn" class="btn btn-secondary">Previous</button>
+      <button id="nextBtn" class="btn btn-primary">Next</button>
+      <button id="submitBtn" class="btn btn-primary hidden">Submit</button>
+    </div>
+
+    <p id="progress" class="progress-indicator">Question 0 of 0</p>
+  </section>
+
+  <section id="results" class="hidden">
+    <div id="resultSummary" class="results-card"></div>
+    <button id="restartBtn" class="btn btn-secondary">Restart</button>
+  </section>
+</main>
+
 
     <!-- TEST SECTION -->
     <section id="test" class="hidden">
@@ -139,4 +153,5 @@
   </script>
 </body>
 </html>
+
 
