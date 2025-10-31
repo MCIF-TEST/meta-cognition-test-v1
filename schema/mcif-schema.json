@@ -1,94 +1,47 @@
 {
+  "version": "7.1",
   "meta": {
-    "title": "MCIF 7.1 Schema",
-    "version": "7.1",
-    "author": "Hayden Andrew Carr",
-    "description": "Schema defining phases, metrics and configuration for MCIF 7.1"
+    "totalPoints": 700,
+    "notes": "Primary phase weights and archetype bias vectors."
   },
-  "config": {
-    "reportScale": {
-      "totalPoints": 700,
-      "tiers": {
-        "Explorer": { "min": 0, "max": 350 },
-        "Architect": { "min": 351, "max": 525 },
-        "Visionary": { "min": 526, "max": 700 }
-      }
-    }
+  "phases": {
+    "perception": { "weight": 15 },
+    "cognitive": { "weight": 15 },
+    "creative": { "weight": 15 },
+    "emotion": { "weight": 15 },
+    "meta": { "weight": 15 },
+    "philosophy": { "weight": 15 }
   },
-  "phases": [
-    {
-      "id": "perception",
-      "name": "Perceptual Awareness",
-      "description": "Sensory detail and concept linkage",
-      "promptIds": ["p_perception_001"],
-      "metrics": [
-        { "id": "perceptual_detail", "name": "Detail", "maxPoints": 50 },
-        { "id": "sensory_emotion_link", "name": "Sensory-Emotion Link", "maxPoints": 25 },
-        { "id": "concept_depth", "name": "Concept Depth", "maxPoints": 25 }
-      ]
+  "derived": {
+    "adaptability": { "weight": 10, "notes": "Computed from cross-phase variance / flexibility." }
+  },
+  "archetypes": {
+    "Reflective Architect": {
+      "description": "High Meta + Logic",
+      "bias_vector": [0.10, 0.30, 0.05, 0.35, 0.10, 0.10]
     },
-    {
-      "id": "cognitive",
-      "name": "Cognitive Mechanics",
-      "description": "Logical flow and systems reasoning",
-      "promptIds": ["p_cognitive_001"],
-      "metrics": [
-        { "id": "logic", "name": "Logic", "maxPoints": 40 },
-        { "id": "systems_thinking", "name": "Systems Thinking", "maxPoints": 30 },
-        { "id": "practical_creativity", "name": "Practical Creativity", "maxPoints": 30 }
-      ]
+    "Empathic Inventor": {
+      "description": "High Creativity + Emotion",
+      "bias_vector": [0.05, 0.10, 0.30, 0.10, 0.30, 0.15]
     },
-    {
-      "id": "emotion",
-      "name": "Emotive Intelligence",
-      "description": "Emotional literacy and psychological causality",
-      "promptIds": ["p_emotion_001"],
-      "metrics": [
-        { "id": "emotional_identification", "name": "Emotional Identification", "maxPoints": 30 },
-        { "id": "causal_insight", "name": "Causal Insight", "maxPoints": 40 },
-        { "id": "self_compassion", "name": "Self-Compassion", "maxPoints": 30 }
-      ]
+    "Visionary Synthesist": {
+      "description": "Logic + Philosophy + Creativity",
+      "bias_vector": [0.05, 0.30, 0.25, 0.05, 0.20, 0.15]
     },
-    {
-      "id": "meta",
-      "name": "Meta-Cognitive Insight",
-      "description": "Awareness of thought processes",
-      "promptIds": ["p_meta_001"],
-      "metrics": [
-        { "id": "meta_awareness", "name": "Meta-Awareness", "maxPoints": 40 },
-        { "id": "process_diagnosis", "name": "Process Diagnosis", "maxPoints": 40 },
-        { "id": "remedy_clarity", "name": "Remedy Clarity", "maxPoints": 20 }
-      ]
+    "Grounded Operator": {
+      "description": "High Logic low Meta",
+      "bias_vector": [0.05, 0.45, 0.05, 0.05, 0.10, 0.30]
     },
-    {
-      "id": "creative",
-      "name": "Creative Intelligence",
-      "description": "Originality and cross-domain integration",
-      "promptIds": ["p_creative_001"],
-      "metrics": [
-        { "id": "novelty", "name": "Novelty", "maxPoints": 40 },
-        { "id": "coherence", "name": "Coherence", "maxPoints": 30 },
-        { "id": "integration", "name": "Integration", "maxPoints": 30 }
-      ]
+    "Dreaming Idealist": {
+      "description": "High Emotion low Logic",
+      "bias_vector": [0.20, 0.05, 0.30, 0.10, 0.10, 0.25]
     },
-    {
-      "id": "philosophy",
-      "name": "Philosophical Depth",
-      "description": "Abstraction and ethical reasoning",
-      "promptIds": ["p_philosophy_001"],
-      "metrics": [
-        { "id": "depth", "name": "Depth", "maxPoints": 40 },
-        { "id": "logical_consistency", "name": "Logical Consistency", "maxPoints": 30 },
-        { "id": "existential_clarity", "name": "Existential Clarity", "maxPoints": 30 }
-      ]
+    "Balanced Strategist": {
+      "description": "Even scores",
+      "bias_vector": [0.166, 0.166, 0.166, 0.166, 0.166, 0.17]
     }
-  ],
-  "prompts": [
-    { "id": "p_perception_001" },
-    { "id": "p_cognitive_001" },
-    { "id": "p_emotion_001" },
-    { "id": "p_meta_001" },
-    { "id": "p_creative_001" },
-    { "id": "p_philosophy_001" }
+  }
+}
   ]
 }
+
