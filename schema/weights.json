@@ -1,44 +1,166 @@
 {
-  "version": "7.1",
-  "meta": {
-    "totalPoints": 700,
-    "notes": "Primary phase weights and archetype bias vectors."
+  "version": "7.1.0",
+  "release_date": "2025-11-01",
+  "description": "Canonical MCIF 7.1 weighting manifest — defines domains, phases, submetrics, and tier modulation for composite computation.",
+  "algorithm_reference": "MCIF_ANALYSIS_ENGINE_V7.1_CORE",
+  "metadata": {
+    "author": "Hayden Andrew Carr | Meta-Cognitive Intelligence Project",
+    "validation_schema": "./schema/mcif-schema.json",
+    "deterministic": true,
+    "scaling_mode": "Bayesian_Normalized",
+    "archetype_basis": "Composite_Reflective_Index"
   },
+
+  "domains": {
+    "perception": 0.15,
+    "logic": 0.15,
+    "creativity": 0.15,
+    "emotion": 0.15,
+    "adaptability": 0.10,
+    "metaAwareness": 0.15,
+    "philosophy": 0.15
+  },
+
+  "domain_descriptions": {
+    "perception": "Sensory accuracy, descriptive clarity, first-order awareness.",
+    "logic": "Analytical consistency, causal reasoning, inferential strength.",
+    "creativity": "Pattern synthesis, originality, associative fluency.",
+    "emotion": "Affective articulation, empathic resonance, emotional logic.",
+    "adaptability": "Cognitive flexibility, contextual modulation, phase-shift agility.",
+    "metaAwareness": "Self-observation, reflective coherence, awareness of cognition.",
+    "philosophy": "Meaning synthesis, value reasoning, meta-ethical coherence."
+  },
+
   "phases": {
-    "perception": { "weight": 15 },
-    "cognitive": { "weight": 15 },
-    "creative": { "weight": 15 },
-    "emotion": { "weight": 15 },
-    "meta": { "weight": 15 },
-    "philosophy": { "weight": 15 }
-  },
-  "derived": {
-    "adaptability": { "weight": 10, "notes": "Computed from cross-phase variance / flexibility." }
-  },
-  "archetypes": {
-    "Reflective Architect": {
-      "description": "High Meta + Logic",
-      "bias_vector": [0.10, 0.30, 0.05, 0.35, 0.10, 0.10]
+    "1": {
+      "name": "Perceptual Genesis",
+      "domains": ["perception", "emotion"],
+      "submetrics": {
+        "detail": 0.40,
+        "sensoryEmotionLink": 0.30,
+        "conceptDepth": 0.30
+      }
     },
-    "Empathic Inventor": {
-      "description": "High Creativity + Emotion",
-      "bias_vector": [0.05, 0.10, 0.30, 0.10, 0.30, 0.15]
+    "2": {
+      "name": "Cognitive Architecture",
+      "domains": ["logic", "creativity"],
+      "submetrics": {
+        "causalMapping": 0.35,
+        "analyticalCoherence": 0.35,
+        "constructNovelty": 0.30
+      }
+    },
+    "3": {
+      "name": "Creative Divergence",
+      "domains": ["creativity", "metaAwareness"],
+      "submetrics": {
+        "metaphoricDensity": 0.40,
+        "divergentAssociations": 0.35,
+        "symbolicClarity": 0.25
+      }
+    },
+    "4": {
+      "name": "Affective Integration",
+      "domains": ["emotion", "adaptability"],
+      "submetrics": {
+        "empathicLink": 0.40,
+        "emotionalCausality": 0.35,
+        "toleranceOfAmbiguity": 0.25
+      }
+    },
+    "5": {
+      "name": "Reflective Metacognition",
+      "domains": ["metaAwareness", "logic", "philosophy"],
+      "submetrics": {
+        "selfReferenceClarity": 0.30,
+        "coherenceAcrossPhases": 0.35,
+        "metaLogicIntegrity": 0.35
+      }
+    },
+    "6": {
+      "name": "Integrative Synthesis",
+      "domains": ["philosophy", "adaptability", "emotion", "creativity"],
+      "submetrics": {
+        "meaningConvergence": 0.30,
+        "ethicalConsistency": 0.30,
+        "aestheticCohesion": 0.25,
+        "transformativeInsight": 0.15
+      }
+    }
+  },
+
+  "tier_modulation": {
+    "seed": {
+      "range": [0, 199],
+      "modifier": 0.85,
+      "description": "Initial baseline tier; responses weighted toward perceptual and emotional domains for early grounding."
+    },
+    "growth": {
+      "range": [200, 399],
+      "modifier": 1.00,
+      "description": "Balanced weight application; all domains treated equally for mid-range stabilization."
+    },
+    "refinement": {
+      "range": [400, 549],
+      "modifier": 1.15,
+      "description": "Enhances logical, reflective, and adaptability metrics for evolved self-modulation."
+    },
+    "harmonization": {
+      "range": [550, 700],
+      "modifier": 1.25,
+      "description": "Elevates integrative synthesis and philosophical weighting; adaptive Bayesian priors favor coherence over novelty."
+    }
+  },
+
+  "adaptive_scaling": {
+    "enabled": true,
+    "method": "ContextualVarianceNormalization",
+    "parameters": {
+      "window_size": 4,
+      "stability_threshold": 0.03,
+      "learning_rate": 0.15
+    },
+    "description": "Dynamically adjusts domain weights based on intra-session variance; stabilizes composite convergence without biasing novelty."
+  },
+
+  "archetype_mapping": {
+    "Balanced Strategist": {
+      "threshold": [400, 499],
+      "dominant_domains": ["logic", "metaAwareness"],
+      "signature_vector": {"coherence": 0.8, "creativity": 0.6, "emotion": 0.5}
     },
     "Visionary Synthesist": {
-      "description": "Logic + Philosophy + Creativity",
-      "bias_vector": [0.05, 0.30, 0.25, 0.05, 0.20, 0.15]
+      "threshold": [500, 700],
+      "dominant_domains": ["creativity", "philosophy"],
+      "signature_vector": {"coherence": 0.9, "creativity": 0.85, "metaAwareness": 0.75}
     },
-    "Grounded Operator": {
-      "description": "High Logic low Meta",
-      "bias_vector": [0.05, 0.45, 0.05, 0.05, 0.10, 0.30]
+    "Empathic Grounder": {
+      "threshold": [300, 399],
+      "dominant_domains": ["emotion", "perception"],
+      "signature_vector": {"coherence": 0.7, "emotion": 0.8, "adaptability": 0.55}
     },
-    "Dreaming Idealist": {
-      "description": "High Emotion low Logic",
-      "bias_vector": [0.20, 0.05, 0.30, 0.10, 0.10, 0.25]
+    "Analytic Architect": {
+      "threshold": [400, 499],
+      "dominant_domains": ["logic", "creativity"],
+      "signature_vector": {"coherence": 0.85, "logic": 0.9, "metaAwareness": 0.6}
     },
-    "Balanced Strategist": {
-      "description": "Even scores",
-      "bias_vector": [0.166, 0.166, 0.166, 0.166, 0.166, 0.17]
+    "Reflective Harmonizer": {
+      "threshold": [550, 700],
+      "dominant_domains": ["metaAwareness", "philosophy", "emotion"],
+      "signature_vector": {"coherence": 0.95, "emotion": 0.7, "adaptability": 0.8}
     }
+  },
+
+  "normalization_constants": {
+    "domain_baseline": 100,
+    "phase_weight_total": 1.0,
+    "metric_floor": 0.0,
+    "metric_ceiling": 1.0
+  },
+
+  "integrity_checks": {
+    "verify_sum_to_one": true,
+    "verify_domain_alignment": true,
+    "strict_mode": true
   }
 }
