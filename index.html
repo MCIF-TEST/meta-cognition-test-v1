@@ -193,15 +193,49 @@
     </div>
   </aside>
 
-  <!-- Load core modules (order matters) -->
-  <!-- analysis.js exposes MCIFAnalysis; data.js exposes MCIFData; logic.js optional (exposes MCIF logic/state machine) -->
-  <script src="src/analysis/analysis.js"></script>
+  <!-- ========================================================= -->
+  <!-- MCIF Core Engine Load Order (Critical Sequence)           -->
+  <!-- ========================================================= -->
+
+  <!-- Load foundational engine modules first -->
   <script src="src/data/data.js"></script>
   <script src="src/logic/logic.js"></script>
+  <script src="src/analysis/analysis.js"></script>
 
-  <!-- UI glue (we will produce app.js + ui.js next) -->
-  <script type="module" src="ui.js"></script>
-  <script type="module" src="app.js"></script>
+  <!-- ========================================================= -->
+  <!-- MCIF Interface Layer (Module-Aware Frontend)              -->
+  <!-- ========================================================= -->
+
+  <!-- UI and Application Logic -->
+  <!-- Both use ES Modules to enable imports, clean scoping, and async readiness -->
+  <script type="module">
+    import './ui.js';
+    import './app.js';
+
+    // Initialize only after DOM and all MCIF systems are ready
+    window.addEventListener('DOMContentLoaded', async () => {
+      console.log('%c[MCIF 7.1]', 'color:#00ffaa;font-weight:bold;', 'Initializing Interface Layer…');
+
+      // Wait for the core modules to be ready (poll or hook if needed)
+      if (typeof window.MCIFAnalysis === 'undefined' || typeof window.MCIFData === 'undefined') {
+        console.warn('Core modules not yet available. Retrying…');
+        let retries = 0;
+        while ((!window.MCIFAnalysis || !window.MCIFData) && retries < 20) {
+          await new Promise(r => setTimeout(r, 150));
+          retries++;
+        }
+      }
+
+      if (window.MCIFAnalysis && window.MCIFData) {
+        console.log('%c[MCIF 7.1]', 'color:#00ffaa;', 'All systems online.');
+        // Initialize UI once the backend is verified
+        if (window.initMCIFApp) window.initMCIFApp();
+        else console.error('initMCIFApp not found — check app.js initialization export.');
+      } else {
+        console.error('MCIF core initialization timeout. Verify data.js / analysis.js / logic.js paths.');
+      }
+    });
+  </script>
 
   <!-- Optional: service worker registration point for offline use (implement sw.js in next step) -->
   <script>
@@ -222,3 +256,4 @@
   </script>
 </body>
 </html>
+
