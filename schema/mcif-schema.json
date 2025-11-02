@@ -1,47 +1,582 @@
 {
-  "version": "7.1",
-  "meta": {
-    "totalPoints": 700,
-    "notes": "Primary phase weights and archetype bias vectors."
-  },
-  "phases": {
-    "perception": { "weight": 15 },
-    "cognitive": { "weight": 15 },
-    "creative": { "weight": 15 },
-    "emotion": { "weight": 15 },
-    "meta": { "weight": 15 },
-    "philosophy": { "weight": 15 }
-  },
-  "derived": {
-    "adaptability": { "weight": 10, "notes": "Computed from cross-phase variance / flexibility." }
-  },
-  "archetypes": {
-    "Reflective Architect": {
-      "description": "High Meta + Logic",
-      "bias_vector": [0.10, 0.30, 0.05, 0.35, 0.10, 0.10]
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.org/schemas/mcif-schema.json",
+  "title": "MCIF 7.1 Schema",
+  "description": "JSON Schema for MCIF 7.1 session data, prompts, weights, analysis outputs, and ledger.",
+  "type": "object",
+  "required": ["schemaVersion", "generatedAt", "payload"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "description": "Semantic version of this schema (e.g., 'mcif-schema@1.0.0')"
     },
-    "Empathic Inventor": {
-      "description": "High Creativity + Emotion",
-      "bias_vector": [0.05, 0.10, 0.30, 0.10, 0.30, 0.15]
+    "generatedAt": {
+      "type": "integer",
+      "description": "UNIX epoch milliseconds when this document was created"
     },
-    "Visionary Synthesist": {
-      "description": "Logic + Philosophy + Creativity",
-      "bias_vector": [0.05, 0.30, 0.25, 0.05, 0.20, 0.15]
-    },
-    "Grounded Operator": {
-      "description": "High Logic low Meta",
-      "bias_vector": [0.05, 0.45, 0.05, 0.05, 0.10, 0.30]
-    },
-    "Dreaming Idealist": {
-      "description": "High Emotion low Logic",
-      "bias_vector": [0.20, 0.05, 0.30, 0.10, 0.10, 0.25]
-    },
-    "Balanced Strategist": {
-      "description": "Even scores",
-      "bias_vector": [0.166, 0.166, 0.166, 0.166, 0.166, 0.17]
+    "payload": {
+      "type": "object",
+      "oneOf": [
+        { "$ref": "#/definitions/SessionDocument" },
+        { "$ref": "#/definitions/PromptsDocument" },
+        { "$ref": "#/definitions/WeightsDocument" },
+        { "$ref": "#/definitions/LedgerDocument" },
+        { "$ref": "#/definitions/AnalysisReportDocument" }
+      ]
     }
-  }
-}
+  },
+  "definitions": {
+    "idPattern": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_\\-:]+$"
+    },
+
+    "Timestamp": {
+      "type": "integer",
+      "description": "UNIX epoch milliseconds"
+    },
+
+    "UserId": {
+      "type": "string",
+      "description": "Opaque user id; no PII by default"
+    },
+
+    "TierEnum": {
+      "type": "string",
+      "enum": ["Explorer", "Architect", "Visionary"]
+    },
+
+    "PhaseIdEnum": {
+      "type": "integer",
+      "enum": [1, 2, 3, 4, 5, 6]
+    },
+
+    "PhaseDefinition": {
+      "type": "object",
+      "required": ["id", "name", "shortPrompt", "metrics"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/definitions/PhaseIdEnum" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "shortPrompt": { "type": "string" },
+        "fullPrompt": { "type": "string" },
+        "expectedResponseType": {
+          "type": "string",
+          "description": "e.g., 'free-text', 'structured', 'audio'",
+          "enum": ["free-text", "structured", "audio", "mixed"]
+        },
+        "metrics": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "range"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "description": { "type": "string" },
+              "range": {
+                "type": "object",
+                "required": ["min", "max"],
+                "properties": {
+                  "min": { "type": "number" },
+                  "max": { "type": "number" }
+                }
+              },
+              "weight": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "Optional local relative weight (normalized per phase)"
+              }
+            }
+          }
+        },
+        "followupHints": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+
+    "PromptsDocument": {
+      "type": "object",
+      "required": ["type", "version", "prompts"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": ["prompts"] },
+        "version": { "type": "string" },
+        "prompts": {
+          "type": "array",
+          "minItems": 6,
+          "items": {
+            "type": "object",
+            "required": ["id", "phaseId", "text", "tone"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "$ref": "#/definitions/idPattern" },
+              "phaseId": { "$ref": "#/definitions/PhaseIdEnum" },
+              "text": { "type": "string" },
+              "tone": {
+                "type": "string",
+                "enum": ["calm", "exploratory", "neutral"]
+              },
+              "followups": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["id", "text", "trigger"],
+                  "properties": {
+                    "id": { "$ref": "#/definitions/idPattern" },
+                    "text": { "type": "string" },
+                    "trigger": {
+                      "type": "object",
+                      "description": "Basic trigger rule for followup (e.g., low_coherence, high_latency)",
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": { "type": "string" },
+                        "threshold": {}
+                      }
+                    }
+                  }
+                }
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "expected_length_tokens": { "type": "integer" },
+                  "accessibility": {
+                    "type": "object",
+                    "properties": {
+                      "pacing_control": { "type": "boolean" },
+                      "alt_text": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "WeightsDocument": {
+      "type": "object",
+      "required": ["type", "version", "weightSets"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": ["weights"] },
+        "version": { "type": "string" },
+        "weightSets": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z0-9_\\-]+$": {
+              "type": "object",
+              "required": ["domains", "submetrics"],
+              "additionalProperties": false,
+              "properties": {
+                "domains": {
+                  "type": "object",
+                  "required": ["perception","logic","creativity","emotion","adaptability","metaAwareness","philosophy"],
+                  "properties": {
+                    "perception": { "type": "number" },
+                    "logic": { "type": "number" },
+                    "creativity": { "type": "number" },
+                    "emotion": { "type": "number" },
+                    "adaptability": { "type": "number" },
+                    "metaAwareness": { "type": "number" },
+                    "philosophy": { "type": "number" }
+                  }
+                },
+                "submetrics": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^[a-zA-Z0-9_\\-]+$": { "type": "number", "minimum": 0 }
+                    }
+                  }
+                },
+                "version": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "ResponseObject": {
+      "type": "object",
+      "required": ["id", "sessionId", "phaseId", "promptId", "text", "timestamps"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/definitions/idPattern" },
+        "sessionId": { "$ref": "#/definitions/idPattern" },
+        "phaseId": { "$ref": "#/definitions/PhaseIdEnum" },
+        "promptId": { "$ref": "#/definitions/idPattern" },
+        "text": { "type": "string" },
+        "tokens": { "type": "integer", "minimum": 0 },
+        "timestamps": {
+          "type": "object",
+          "required": ["startedAt", "endedAt"],
+          "properties": {
+            "startedAt": { "$ref": "#/definitions/Timestamp" },
+            "endedAt": { "$ref": "#/definitions/Timestamp" },
+            "submittedAt": { "$ref": "#/definitions/Timestamp" }
+          }
+        },
+        "audio": {
+          "type": "object",
+          "properties": {
+            "durationMs": { "type": "integer" },
+            "transcript": { "type": "string" }
+          }
+        },
+        "embeddings": {
+          "type": "array",
+          "items": { "type": "number" }
+        },
+        "analysis": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "rawMetrics": { "type": "object" },
+            "subScores": { "type": "object" },
+            "probabilities": { "type": "object" },
+            "explanations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["metric", "reason"],
+                "properties": { "metric": { "type": "string" }, "reason": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "meta": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "device": { "type": "string" },
+            "inputMode": { "type": "string", "enum": ["keyboard","voice","paste","other"] }
+          }
+        }
+      }
+    },
+
+    "SessionDocument": {
+      "type": "object",
+      "required": ["type","version","session"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": ["session"] },
+        "version": { "type": "string" },
+        "session": {
+          "type": "object",
+          "required": ["id","createdAt","tier","phaseProgress","config","owner"],
+          "additionalProperties": false,
+          "properties": {
+            "id": { "$ref": "#/definitions/idPattern" },
+            "owner": { "$ref": "#/definitions/UserId" },
+            "createdAt": { "$ref": "#/definitions/Timestamp" },
+            "updatedAt": { "$ref": "#/definitions/Timestamp" },
+            "tier": { "$ref": "#/definitions/TierEnum" },
+            "status": {
+              "type": "string",
+              "enum": ["initialized","in_progress","completed","abandoned"]
+            },
+            "phaseProgress": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["phaseId","startedAt","completedAt","metrics"],
+                "additionalProperties": false,
+                "properties": {
+                  "phaseId": { "$ref": "#/definitions/PhaseIdEnum" },
+                  "startedAt": { "$ref": "#/definitions/Timestamp" },
+                  "completedAt": { "oneOf": [{ "type": "integer" }, { "type": "null" }] },
+                  "metrics": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "responses": {
+                    "type": "array",
+                    "items": { "$ref": "#/definitions/ResponseObject" }
+                  }
+                }
+              }
+            },
+            "config": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["weightSet","privacy"],
+              "properties": {
+                "weightSet": { "type": "string" },
+                "mode": { "type": "string", "enum": ["guided","self-paced","mentor"] },
+                "accessibility": {
+                  "type": "object",
+                  "properties": {
+                    "font": { "type": "string" },
+                    "pacing": { "type": "string" },
+                    "voiceEnabled": { "type": "boolean" }
+                  }
+                },
+                "privacy": {
+                  "type": "object",
+                  "required": ["storePersonalData","retainLedgerHashOnly"],
+                  "properties": {
+                    "storePersonalData": { "type": "boolean" },
+                    "retainLedgerHashOnly": { "type": "boolean" }
+                  }
+                }
+              }
+            },
+            "coherenceWaveform": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["t","amplitude"],
+                "properties": {
+                  "t": { "$ref": "#/definitions/Timestamp" },
+                  "amplitude": { "type": "number" },
+                  "label": { "type": "string" }
+                }
+              }
+            },
+            "finalReport": { "$ref": "#/definitions/AnalysisReport" },
+            "archetype": { "$ref": "#/definitions/Archetype" },
+            "auditHashes": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "LedgerEntry": {
+      "type": "object",
+      "required": ["id","timestamp","actor","action","sessionId","payloadSummary","hash"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/definitions/idPattern" },
+        "timestamp": { "$ref": "#/definitions/Timestamp" },
+        "actor": { "type": "string" },
+        "action": { "type": "string" },
+        "sessionId": { "$ref": "#/definitions/idPattern" },
+        "payload": { "type": "object", "additionalProperties": true },
+        "payloadSummary": { "type": "string" },
+        "rationale": { "type": "string" },
+        "hash": { "type": "string" }
+      }
+    },
+
+    "LedgerDocument": {
+      "type": "object",
+      "required": ["type","version","entries"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": ["ledger"] },
+        "version": { "type": "string" },
+        "entries": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/LedgerEntry" }
+        }
+      }
+    },
+
+    "Archetype": {
+      "type": "object",
+      "required": ["id","name","confidence","dominantDomains"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "name": {
+          "type": "string",
+          "enum": [
+            "Reflective Architect",
+            "Empathic Inventor",
+            "Visionary Synthesist",
+            "Grounded Operator",
+            "Dreaming Idealist",
+            "Balanced Strategist",
+            "Other"
+          ]
+        },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "dominantDomains": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["phaseId","quote","metricEvidence"],
+            "properties": {
+              "phaseId": { "$ref": "#/definitions/PhaseIdEnum" },
+              "quote": { "type": "string" },
+              "metricEvidence": { "type": "object", "additionalProperties": true }
+            }
+          }
+        }
+      }
+    },
+
+    "AnalysisReport": {
+      "type": "object",
+      "required": ["compositeScore","domainScores","tier","insightSummary"],
+      "additionalProperties": false,
+      "properties": {
+        "compositeScore": { "type": "number", "minimum": 0, "maximum": 700 },
+        "domainScores": {
+          "type": "object",
+          "required": ["perception","logic","creativity","emotion","adaptability","metaAwareness","philosophy"],
+          "properties": {
+            "perception": { "type": "number" },
+            "logic": { "type": "number" },
+            "creativity": { "type": "number" },
+            "emotion": { "type": "number" },
+            "adaptability": { "type": "number" },
+            "metaAwareness": { "type": "number" },
+            "philosophy": { "type": "number" }
+          }
+        },
+        "tier": { "$ref": "#/definitions/TierEnum" },
+        "archetype": { "$ref": "#/definitions/Archetype" },
+        "insightSummary": { "type": "string" },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["phaseId","metric","value","quote"],
+            "properties": {
+              "phaseId": { "$ref": "#/definitions/PhaseIdEnum" },
+              "metric": { "type": "string" },
+              "value": { "type": "number" },
+              "quote": { "type": "string" }
+            }
+          }
+        },
+        "coherenceWaveform": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["t","amplitude"],
+            "properties": {
+              "t": { "$ref": "#/definitions/Timestamp" },
+              "amplitude": { "type": "number" },
+              "annotation": { "type": "string" }
+            }
+          }
+        },
+        "insightDensity": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["t","density"],
+            "properties": {
+              "t": { "$ref": "#/definitions/Timestamp" },
+              "density": { "type": "number" }
+            }
+          }
+        },
+        "generatedBy": {
+          "type": "object",
+          "required": ["algorithmVersion","weightsVersion","timestamp"],
+          "properties": {
+            "algorithmVersion": { "type": "string" },
+            "weightsVersion": { "type": "string" },
+            "timestamp": { "$ref": "#/definitions/Timestamp" }
+          }
+        }
+      }
+    },
+
+    "AnalysisReportDocument": {
+      "type": "object",
+      "required": ["type","version","report"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": ["analysisReport"] },
+        "version": { "type": "string" },
+        "report": { "$ref": "#/definitions/AnalysisReport" }
+      }
+    }
+  },
+
+  "examples": [
+    {
+      "schemaVersion": "mcif-schema@1.0.0",
+      "generatedAt": 1700000000000,
+      "payload": {
+        "type": "session",
+        "version": "1.0.0",
+        "session": {
+          "id": "s_demo_0001",
+          "owner": "user_abc123",
+          "createdAt": 1700000000000,
+          "updatedAt": 1700000001000,
+          "tier": "Explorer",
+          "status": "completed",
+          "phaseProgress": [
+            {
+              "phaseId": 1,
+              "startedAt": 1700000000000,
+              "completedAt": 1700000002000,
+              "metrics": { "detail": 42, "sensoryEmotionLink": 18, "conceptDepth": 22 },
+              "responses": [
+                {
+                  "id": "r1",
+                  "sessionId": "s_demo_0001",
+                  "phaseId": 1,
+                  "promptId": "percept_001",
+                  "text": "I see a coffee mug as if for the first time...",
+                  "tokens": 54,
+                  "timestamps": { "startedAt": 1700000000100, "endedAt": 1700000001800, "submittedAt": 1700000002000 },
+                  "analysis": {
+                    "rawMetrics": { "detail": 42, "sensoryEmotionLink": 18, "conceptDepth": 22 },
+                    "subScores": { "perception": 82 },
+                    "probabilities": { "coherence": 0.88 },
+                    "explanations": [ { "metric": "detail", "reason": "High descriptor density." } ]
+                  }
+                }
+              ]
+            }
+          ],
+          "config": {
+            "weightSet": "default",
+            "mode": "guided",
+            "accessibility": { "font": "open-dyslexic", "pacing": "slow", "voiceEnabled": true },
+            "privacy": { "storePersonalData": false, "retainLedgerHashOnly": true }
+          },
+          "coherenceWaveform": [ { "t": 1700000000000, "amplitude": 0.6 } ],
+          "finalReport": {
+            "compositeScore": 412,
+            "domainScores": { "perception": 82, "logic": 70, "creativity": 65, "emotion": 60, "adaptability": 50, "metaAwareness": 85, "philosophy": 60 },
+            "tier": "Architect",
+            "insightSummary": "Strong meta-awareness and perceptual detail; moderate adaptability.",
+            "evidence": [
+              { "phaseId": 1, "metric": "detail", "value": 42, "quote": "I see a coffee mug..." }
+            ],
+            "coherenceWaveform": [ { "t": 1700000000000, "amplitude": 0.6 } ],
+            "insightDensity": [ { "t": 1700000000000, "density": 0.45 } ],
+            "generatedBy": { "algorithmVersion": "analysis_v1.0.0", "weightsVersion": "default@1.0", "timestamp": 1700000003000 }
+          },
+          "archetype": {
+            "id": "a1",
+            "name": "Reflective Architect",
+            "confidence": 0.82,
+            "dominantDomains": ["metaAwareness","logic"],
+            "evidence": [ { "phaseId": 4, "quote": "I notice my pattern of procrastination...", "metricEvidence": { "metaAwareness": 38 } } ]
+          },
+          "auditHashes": [ "sha256:abcd..." ]
+        }
+      }
+    }
   ]
 }
-
